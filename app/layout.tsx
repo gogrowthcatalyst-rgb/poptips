@@ -33,11 +33,11 @@ const geistMono = Geist_Mono({
    ===================================================================== */
 export const metadata: Metadata = {
   title: {
-    default: 'Pop Tips — Empowering the Appreciation Economy',
+    default: 'Pop Tips — One-to-one tipping, directly.',
     template: '%s · Pop Tips',
   },
   description:
-    'Pop Tips is the direct line between a moment of great service and the person who gave it. 100% to the worker. Instantly.',
+    'Pop Tips enables one-to-one tipping, directly. Empowering the appreciation economy — 100% to the worker, instantly.',
   applicationName: 'Pop Tips',
   manifest: '/manifest.json',
   appleWebApp: {
@@ -48,13 +48,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Pop Tips',
-    title: 'Pop Tips — Empowering the Appreciation Economy',
-    description: '100% to the worker. Instantly.',
+    title: 'Pop Tips — One-to-one tipping, directly.',
+    description: 'Empowering the appreciation economy. 100% to the worker, instantly.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pop Tips — Empowering the Appreciation Economy',
-    description: '100% to the worker. Instantly.',
+    title: 'Pop Tips — One-to-one tipping, directly.',
+    description: 'Empowering the appreciation economy. 100% to the worker, instantly.',
   },
 };
 

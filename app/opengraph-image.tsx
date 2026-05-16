@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Pop Tips — Empowering the Appreciation Economy';
+export const alt = 'Pop Tips — One-to-one tipping, directly. Empowering the appreciation economy.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -99,7 +99,7 @@ export default async function OGImage() {
           </div>
         </div>
 
-        {/* Middle — the headline */}
+        {/* Middle — Kelly's primary tagline leads, Empowering supports beneath */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div
             style={{
@@ -115,13 +115,25 @@ export default async function OGImage() {
           </div>
           <div
             style={{
-              fontSize: 110,
+              fontSize: 92,
               fontStyle: 'italic',
               color: '#0E1420',
               lineHeight: 1.0,
               letterSpacing: '-0.04em',
               fontWeight: 500,
-              maxWidth: 1000,
+              maxWidth: 1050,
+            }}
+          >
+            One-to-one tipping. Directly.
+          </div>
+          <div
+            style={{
+              fontSize: 38,
+              fontFamily: 'sans-serif',
+              color: '#4B5669',
+              maxWidth: 900,
+              lineHeight: 1.3,
+              fontWeight: 400,
             }}
           >
             Empowering the appreciation economy.

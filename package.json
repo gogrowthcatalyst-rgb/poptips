@@ -2,7 +2,7 @@
   "name": "pop-tips",
   "version": "0.1.0",
   "private": true,
-  "description": "Pop Tips — Empowering the Appreciation Economy. 100% to the worker. Instantly.",
+  "description": "Pop Tips — One-to-one tipping, directly. Empowering the appreciation economy. 100% to the worker, instantly.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

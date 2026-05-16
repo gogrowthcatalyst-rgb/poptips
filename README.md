@@ -1,6 +1,6 @@
 # Pop Tips
 
-**Empowering the appreciation economy.** A direct-line tipping PWA. 100% to the worker. Instantly.
+**Pop Tips enables one-to-one tipping, directly.** Empowering the appreciation economy. A direct-line tipping PWA — 100% to the worker, instantly.
 
 Pop Tips never touches tip money — every tip routes peer-to-peer through the recipient's preferred app (Venmo, Cash App, PayPal, Zelle). Tippers pay $5 setup + 3% per tip after a 3-tip free trial. Recipients are always free.
 

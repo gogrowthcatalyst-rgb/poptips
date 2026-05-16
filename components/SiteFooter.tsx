@@ -45,14 +45,18 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-line bg-surface">
       <div className="mx-auto max-w-5xl px-5 py-14 md:px-8 md:py-20">
-        {/* Brand block — the appreciation economy line front and center */}
+        {/* Brand block — primary tagline leads, secondary supports, instantly closes */}
         <div className="mb-14 max-w-2xl">
           <Logo variant="h-dark" height={36} className="mb-6" alt="Pop Tips" />
           <p className="font-display text-3xl font-medium leading-[1.1] text-ink md:text-4xl">
+            Pop Tips enables one-to-one tipping,{' '}
+            <em className="italic text-accent">directly.</em>
+          </p>
+          <p className="mt-4 max-w-md font-display text-lg font-medium leading-snug text-ink-dim md:text-xl">
             Empowering the{' '}
             <em className="italic text-accent">appreciation economy.</em>
           </p>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-dim md:text-base">
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-faint md:text-base">
             100% to the worker. <em className="italic text-accent">Instantly.</em>
           </p>
         </div>

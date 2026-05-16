@@ -126,12 +126,17 @@ export default function HomePage() {
                 <em className="italic text-accent">Not the system.</em>
               </h1>
             </Reveal>
-            <Reveal delay={160}>
-              <p className="mt-6 max-w-[52ch] text-lg font-light leading-relaxed text-ink-dim text-pretty md:text-xl">
-                Pop Tips is the direct line between a moment of great service and the person who
-                gave it. <span className="font-medium text-ink">100%</span> lands in their account
-                — not ours, not their boss&rsquo;s, not the platform&rsquo;s. We designed
-                ourselves out of the middle.
+            <Reveal delay={140}>
+              <p className="mt-6 max-w-[48ch] font-display text-2xl font-medium leading-[1.15] text-ink text-balance md:text-3xl">
+                Pop Tips enables one-to-one tipping,{' '}
+                <em className="italic text-coral-500">directly.</em>
+              </p>
+            </Reveal>
+            <Reveal delay={200}>
+              <p className="mt-5 max-w-[52ch] text-lg font-light leading-relaxed text-ink-dim text-pretty md:text-xl">
+                <span className="font-medium text-ink">100%</span> lands in their
+                account — not ours, not their boss&rsquo;s, not the platform&rsquo;s.
+                We designed ourselves out of the middle.
               </p>
             </Reveal>
             <Reveal delay={240}>
@@ -387,9 +392,10 @@ export default function HomePage() {
                   Every cent. <em className="italic text-jade-500">Yours.</em>
                 </h3>
                 <p className="relative mt-4 max-w-md text-base leading-relaxed text-ink-dim md:text-lg">
-                  No employer skim. No payout delay. No platform haircut. Pop Tips is the
-                  appreciation app workers actually own — your QR points to your account,
-                  your rules, every time.
+                  No employer skim. No payout delay.{' '}
+                  <strong className="font-medium text-ink">No Pop Tips fees, ever.</strong>{' '}
+                  Pop Tips is the appreciation app workers actually own — your QR points to
+                  your account, your rules, every time.
                 </p>
 
                 <ul className="relative mt-7 space-y-5">
