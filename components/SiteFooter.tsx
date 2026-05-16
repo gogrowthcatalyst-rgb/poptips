@@ -11,6 +11,7 @@ const sections = [
     title: 'For tippers',
     links: [
       { href: '/signup-tipper', label: 'Get set up' },
+      { href: '/dashboard/tipper', label: 'Dashboard' },
       { href: '/#how-it-works', label: 'How it works' },
       { href: '/#pricing', label: 'Pricing' },
     ],
