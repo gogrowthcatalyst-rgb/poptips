@@ -1,0 +1,83 @@
+import { TrackForcer } from '@/components/TrackForcer';
+import { GHLFormEmbed } from '@/components/GHLFormEmbed';
+
+export const metadata = {
+  title: 'Get set up to tip',
+  description:
+    'Add a card once. Scan, send, done — your appreciation lands in their account, not ours.',
+};
+
+const PROMISES = [
+  { title: 'No new app.', body: 'Tip with the wallet already on your phone.' },
+  { title: 'Three free.', body: 'First three tips on us. No card needed to try.' },
+  { title: 'No subscription.', body: 'Pay only for tips you actually send. Cancel anytime.' },
+];
+
+export default function SignupTipperPage() {
+  return (
+    <>
+      <TrackForcer track="tipper" />
+
+      <main className="mx-auto max-w-3xl px-6 pb-20 pt-12 md:px-8 md:pb-32 md:pt-20">
+        {/* HERO ======================================================== */}
+        <header className="text-center">
+          <p className="mb-4 font-mono text-xs uppercase tracking-wider2 text-accent transition-colors duration-200">
+            For tippers
+          </p>
+          <h1 className="font-display text-4xl font-normal leading-[1.05] tracking-tightest text-ink text-balance md:text-5xl lg:text-6xl">
+            Make sure your appreciation{' '}
+            <em className="italic text-accent transition-colors duration-200">actually lands.</em>
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-ink-dim text-pretty md:text-xl">
+            Add a card once. Scan, send, done — your tip goes straight to the person who earned it.
+            We never sit between you and them.
+          </p>
+        </header>
+
+        {/* PROMISES ===================================================== */}
+        <section className="mt-12 grid gap-4 md:mt-16 md:grid-cols-3 md:gap-6">
+          {PROMISES.map((p) => (
+            <div
+              key={p.title}
+              className="rounded-2xl border border-line-soft bg-surface p-5 md:p-6"
+            >
+              <h3 className="font-display text-lg font-medium italic text-ink">{p.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-dim">{p.body}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* FORM PLACEHOLDER ============================================= */}
+        <section
+          aria-labelledby="signup-form-heading"
+          className="mt-12 rounded-3xl border border-line-soft bg-surface p-6 shadow-md md:mt-16 md:p-10"
+        >
+          <h2
+            id="signup-form-heading"
+            className="font-display text-2xl font-normal italic leading-tight text-ink"
+          >
+            Start your account.
+          </h2>
+          <p className="mt-2 text-sm text-ink-dim">
+            We&rsquo;ll text you a magic link to confirm — no password to remember.
+          </p>
+
+          {/* GHL form — built and styled in GHL, embedded via iframe */}
+          <div className="mt-8 overflow-hidden rounded-2xl bg-paper">
+            <GHLFormEmbed
+              formId="B4dOzpxXuZD4x3KYKO37"
+              formName="Tipper Sign Up Form"
+              role="tipper"
+            />
+          </div>
+        </section>
+
+        {/* TRUST LINE =================================================== */}
+        <p className="mt-10 text-center text-sm leading-relaxed text-ink-faint">
+          We never store your card on our servers. Stripe vaults it; we charge against it monthly
+          for the small fee on tips you actually send. You can see every cent.
+        </p>
+      </main>
+    </>
+  );
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Pop Tips",
+  "short_name": "Pop Tips",
+  "description": "100% to the worker. Instantly.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF7F1",
+  "theme_color": "#FBF7F1",
+  "icons": []
+}
