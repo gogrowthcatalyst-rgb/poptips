@@ -77,10 +77,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const noFlash = buildNoFlashScript();
   const fontVars = `${fraunces.variable} ${geist.variable} ${geistMono.variable}`;
 
+  // Inline script — checks PWA standalone state on every page load and sets
+  // localStorage flag. Catches iOS users who installed previously and are
+  // now opening the app from their home screen icon. Synchronous, no flash.
+  const pwaDetect = `
+    try {
+      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+        window.localStorage.setItem('pop_tips_installed', '1');
+      } else if (window.navigator && window.navigator.standalone === true) {
+        window.localStorage.setItem('pop_tips_installed', '1');
+      }
+    } catch (e) {}
+  `.trim();
+
   return (
     <html lang="en" data-track="neutral" className={fontVars}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlash }} />
+        <script dangerouslySetInnerHTML={{ __html: pwaDetect }} />
       </head>
       <body className="flex min-h-screen flex-col bg-paper font-body text-ink">
         <TrackProvider>

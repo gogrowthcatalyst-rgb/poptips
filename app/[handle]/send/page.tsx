@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TrackForcer } from '@/components/TrackForcer';
 import { SendForm } from '@/components/SendForm';
+import { ArrowLeft } from '@/components/icons';
 import { isReservedHandle } from '@/lib/reserved-handles';
 
 interface Params {
@@ -38,7 +39,7 @@ export default async function SendPage({ params }: { params: Promise<Params> }) 
           href={`/${handle}`}
           className="mb-8 inline-flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-dim transition-colors duration-200 hover:text-accent"
         >
-          <span aria-hidden>←</span>
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
           <span>Back to profile</span>
         </Link>
 

@@ -9,18 +9,42 @@ export const metadata = {
 
 const PROMISES = [
   {
+    eyebrow: '01',
     title: 'Always free.',
     body: 'Workers pay nothing. Ever. 100% of every tip is yours.',
+    tone: 'jade' as const,
   },
   {
+    eyebrow: '02',
     title: 'Your wallet, your call.',
     body: 'Pick from Venmo, Cash App, PayPal, or Zelle. Switch anytime.',
+    tone: 'coral' as const,
   },
   {
+    eyebrow: '03',
     title: 'Your name on it.',
     body: 'Your tipping page is pop.tips/your-handle. Yours to print, post, and share.',
+    tone: 'gold' as const,
   },
 ];
+
+const TONE_STYLES = {
+  jade: {
+    card: 'border-jade-100 bg-gradient-to-br from-jade-50 via-paper to-paper',
+    eyebrow: 'text-jade-700',
+    orb: 'bg-jade-100',
+  },
+  coral: {
+    card: 'border-coral-100 bg-gradient-to-br from-coral-50 via-paper to-paper',
+    eyebrow: 'text-coral-700',
+    orb: 'bg-coral-100',
+  },
+  gold: {
+    card: 'border-gold-500/25 bg-gradient-to-br from-gold-100/50 via-paper to-paper',
+    eyebrow: 'text-gold-700',
+    orb: 'bg-gold-100',
+  },
+} as const;
 
 export default function SignupRecipientPage() {
   return (
@@ -38,22 +62,38 @@ export default function SignupRecipientPage() {
             <em className="italic text-accent transition-colors duration-200">Yours.</em>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg font-light leading-relaxed text-ink-dim text-pretty md:text-xl">
-            No employer skim. No payout delay. No platform haircut. Pop Tips is the appreciation
-            app workers actually own — your QR points to your account, your rules, every time.
+            No employer skim. No payout delay.{' '}
+            <strong className="font-medium text-ink">No Pop Tips fees, ever.</strong>{' '}
+            Pop Tips is the appreciation app workers actually own — your QR points to your
+            account, your rules, every time.
           </p>
         </header>
 
-        {/* PROMISES ===================================================== */}
+        {/* PROMISES — colored gradient cards, brand journey treatment ==== */}
         <section className="mt-12 grid gap-4 md:mt-16 md:grid-cols-3 md:gap-6">
-          {PROMISES.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-2xl border border-line-soft bg-surface p-5 md:p-6"
-            >
-              <h3 className="font-display text-lg font-medium italic text-ink">{p.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-dim">{p.body}</p>
-            </div>
-          ))}
+          {PROMISES.map((p) => {
+            const styles = TONE_STYLES[p.tone];
+            return (
+              <div
+                key={p.title}
+                className={`relative overflow-hidden rounded-2xl border p-5 shadow-lift md:p-6 ${styles.card}`}
+              >
+                <div
+                  aria-hidden
+                  className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-50 blur-2xl ${styles.orb}`}
+                />
+                <div className="relative">
+                  <p className={`mb-2 font-mono text-xs font-medium uppercase tracking-wider2 ${styles.eyebrow}`}>
+                    {p.eyebrow}
+                  </p>
+                  <h3 className="font-display text-lg font-medium italic text-ink">
+                    {p.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-dim">{p.body}</p>
+                </div>
+              </div>
+            );
+          })}
         </section>
 
         {/* FORM PLACEHOLDER ============================================= */}

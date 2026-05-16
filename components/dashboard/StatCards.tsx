@@ -1,5 +1,6 @@
 'use client';
 
+import { Flame } from '@/components/icons';
 import type { ChartSeries, MiniBarSeries } from '@/lib/dashboard/placeholder-data';
 import { splitDollars } from '@/lib/dashboard/placeholder-data';
 
@@ -40,7 +41,7 @@ function Eyebrow({ tone, children }: { tone: 'jade' | 'gold' | 'coral'; children
     coral: 'text-coral-700',
   };
   return (
-    <p className={`mb-3 font-mono text-xs font-medium uppercase tracking-wider2 ${toneClass[tone]}`}>
+    <p className={`mb-3 inline-flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-wider2 ${toneClass[tone]}`}>
       {children}
     </p>
   );
@@ -220,7 +221,10 @@ export function StreakCard({
   const hasData = weeks > 0;
   return (
     <StatShell tone="coral">
-      <Eyebrow tone="coral">🔥 Streak</Eyebrow>
+      <Eyebrow tone="coral">
+        <Flame className="h-3.5 w-3.5 text-coral-500" strokeWidth={1.75} />
+        Streak
+      </Eyebrow>
       <span className="inline-flex items-baseline">
         <span className="font-display text-6xl font-medium italic leading-none tracking-tightest text-ink md:text-7xl">
           {weeks}

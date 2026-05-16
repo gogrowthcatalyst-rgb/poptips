@@ -8,10 +8,43 @@ export const metadata = {
 };
 
 const PROMISES = [
-  { title: 'No new app.', body: 'Tip with the wallet already on your phone.' },
-  { title: 'Three free.', body: 'First three tips on us. No card needed to try.' },
-  { title: 'No subscription.', body: 'Pay only for tips you actually send. Cancel anytime.' },
+  {
+    eyebrow: '01',
+    title: 'No new app.',
+    body: 'Tip with the wallet already on your phone.',
+    tone: 'coral' as const,
+  },
+  {
+    eyebrow: '02',
+    title: 'Three free.',
+    body: 'First three tips on us. No card needed to try.',
+    tone: 'jade' as const,
+  },
+  {
+    eyebrow: '03',
+    title: 'No subscription.',
+    body: 'Pay only for tips you actually send. Cancel anytime.',
+    tone: 'gold' as const,
+  },
 ];
+
+const TONE_STYLES = {
+  jade: {
+    card: 'border-jade-100 bg-gradient-to-br from-jade-50 via-paper to-paper',
+    eyebrow: 'text-jade-700',
+    orb: 'bg-jade-100',
+  },
+  coral: {
+    card: 'border-coral-100 bg-gradient-to-br from-coral-50 via-paper to-paper',
+    eyebrow: 'text-coral-700',
+    orb: 'bg-coral-100',
+  },
+  gold: {
+    card: 'border-gold-500/25 bg-gradient-to-br from-gold-100/50 via-paper to-paper',
+    eyebrow: 'text-gold-700',
+    orb: 'bg-gold-100',
+  },
+} as const;
 
 export default function SignupTipperPage() {
   return (
@@ -34,17 +67,31 @@ export default function SignupTipperPage() {
           </p>
         </header>
 
-        {/* PROMISES ===================================================== */}
+        {/* PROMISES — colored gradient cards, brand journey treatment ==== */}
         <section className="mt-12 grid gap-4 md:mt-16 md:grid-cols-3 md:gap-6">
-          {PROMISES.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-2xl border border-line-soft bg-surface p-5 md:p-6"
-            >
-              <h3 className="font-display text-lg font-medium italic text-ink">{p.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-dim">{p.body}</p>
-            </div>
-          ))}
+          {PROMISES.map((p) => {
+            const styles = TONE_STYLES[p.tone];
+            return (
+              <div
+                key={p.title}
+                className={`relative overflow-hidden rounded-2xl border p-5 shadow-lift md:p-6 ${styles.card}`}
+              >
+                <div
+                  aria-hidden
+                  className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-50 blur-2xl ${styles.orb}`}
+                />
+                <div className="relative">
+                  <p className={`mb-2 font-mono text-xs font-medium uppercase tracking-wider2 ${styles.eyebrow}`}>
+                    {p.eyebrow}
+                  </p>
+                  <h3 className="font-display text-lg font-medium italic text-ink">
+                    {p.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-dim">{p.body}</p>
+                </div>
+              </div>
+            );
+          })}
         </section>
 
         {/* FORM PLACEHOLDER ============================================= */}

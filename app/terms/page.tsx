@@ -47,7 +47,7 @@ export default function TermsPage() {
       >
         <p>
           By creating a Pop Tips account, scanning a Pop Tips QR code to send a tip, or
-          using the Pop Tips website, you agree to these Terms of Service (&ldquo;Terms&rdquo;).
+          using the Pop Tips webapp, you agree to these Terms of Service (&ldquo;Terms&rdquo;).
           If you don&rsquo;t agree, please don&rsquo;t use Pop Tips.
         </p>
         <p>
@@ -92,7 +92,7 @@ export default function TermsPage() {
           </li>
         </ul>
         <p>
-          For tippers, Pop Tips also charges a separate annual fee and per-tip take rate
+          For tippers, Pop Tips also charges a separate annual fee and per-tip small fee
           for use of the service (see{' '}
           <a href="#pricing" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">Section 04</a>).
           That billing flows through Stripe and is the only financial transaction Pop Tips
@@ -147,22 +147,35 @@ export default function TermsPage() {
         </p>
         <p>
           <strong className="font-medium text-ink">Tippers</strong> get their first three
-          tips free, with no card required. On your fourth tip, Pop Tips collects a payment
-          method via Stripe and begins billing an annual fee of{' '}
-          <span className="money font-semibold text-ink">$9.99</span> plus a take rate of{' '}
-          <span className="money font-semibold text-ink">3.5%</span> on each tip sent.
+          tips free, with no card required. Pop Tips charges tippers in two parts, beginning
+          when you send your fourth tip:
         </p>
+        <ul className="ml-5 list-disc space-y-2">
+          <li>
+            <strong className="font-medium text-ink">An annual fee of{' '}
+            <span className="money font-semibold">$9.99</span></strong>, charged once when
+            you send your fourth tip (the activation date) and again on each anniversary
+            of that date.
+          </li>
+          <li>
+            <strong className="font-medium text-ink">A small fee of{' '}
+            <span className="money font-semibold">3.5%</span>, billed monthly in aggregate.</strong>{' '}
+            We sum the dollar value of every tip you sent during the month and charge a
+            single 3.5% line item for the total — once, at the start of the following
+            month. Not per-tip. One monthly charge.
+          </li>
+        </ul>
         <p>
           The annual fee renews on the anniversary of your fourth tip (the activation
-          date), not on a calendar year basis. You can cancel at any time before renewal
-          and won&rsquo;t be charged again; existing free trial tips do not reset on
-          cancellation.
+          date), not on a calendar year basis. You can cancel at any time before the next
+          annual renewal and won&rsquo;t be charged the annual fee again. Existing free
+          trial tips do not reset on cancellation.
         </p>
         <p>
-          The take rate is charged at the moment each tip is sent. It is not deducted from
-          the recipient&rsquo;s tip — the recipient always receives 100% of the tip amount
-          you confirm in the payment app. The take rate is a separate charge to your
-          billing method, computed on top of the tip.
+          <strong className="font-medium text-ink">The recipient always receives 100% of
+          the tip amount</strong> you confirm in the payment app. The 3.5% monthly small
+          fee is a separate charge to your billing method on top of the tips — never
+          deducted from a worker&rsquo;s tip.
         </p>
         <p>
           We may change pricing in the future, but existing tippers will be notified at
@@ -241,7 +254,7 @@ export default function TermsPage() {
         title={<>Refunds for Pop Tips <em className="italic text-gold-500">charges.</em></>}
       >
         <p>
-          The Pop Tips annual fee and per-tip take rate (see{' '}
+          The Pop Tips annual fee and the monthly aggregated small fee (see{' '}
           <a href="#pricing" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">Section 04</a>) are
           the only charges Pop Tips itself processes.
         </p>
@@ -251,15 +264,21 @@ export default function TermsPage() {
           <a href="mailto:hello@pop.tips" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">hello@pop.tips</a> to request.
         </p>
         <p>
-          <strong className="font-medium text-ink">Take rate per tip.</strong> Generally
-          non-refundable, since the underlying tip has already been delivered through the
-          payment app. We&rsquo;ll consider refunds case-by-case if the tip itself was
-          obviously a mistake (wrong amount entered, sent to the wrong person) and you
-          contact us within 7 days.
+          <strong className="font-medium text-ink">Monthly small fee.</strong> Since this
+          is billed monthly in aggregate (summed across the prior month&rsquo;s tips), a
+          full refund of any monthly bill is generally not available — the underlying tips
+          have already been delivered through the payment apps. However, you can dispute
+          individual tip line items from a billed month if a tip was obviously a mistake
+          (wrong amount entered, sent to the wrong person, or fraudulent activity on your
+          account). Contact{' '}
+          <a href="mailto:hello@pop.tips" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">hello@pop.tips</a> within
+          7 days of the monthly charge. If we agree, we&rsquo;ll credit the disputed
+          line items back to your next month&rsquo;s bill or refund the proportional
+          amount.
         </p>
         <p>
-          For disputes about the underlying P2P transfer (i.e. the tip itself), contact
-          the payment app you used — see{' '}
+          For disputes about the underlying P2P transfer (i.e. the tip itself, not the
+          Pop Tips fee), contact the payment app you used — see{' '}
           <a href="#payment-apps" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">Section 06</a>.
         </p>
       </LegalSection>

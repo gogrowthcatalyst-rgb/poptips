@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Reveal } from './Reveal';
+import { ArrowLeft } from './icons';
 
 interface PaymentExplainerProps {
   /** Wallet name as users say it: "Venmo", "Cash App", "PayPal", "Zelle" */
@@ -37,7 +38,7 @@ export function PaymentExplainer({
             href="/#payout-apps"
             className="mb-8 inline-flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-dim transition-colors duration-200 hover:text-accent"
           >
-            <span aria-hidden>←</span>
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
             <span>Back to supported apps</span>
           </Link>
 

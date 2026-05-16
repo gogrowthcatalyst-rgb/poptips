@@ -19,6 +19,7 @@
     "@upstash/redis": "^1.34.3",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.36.4",
+    "lucide-react": "^1.16.0",
     "next": "^15.0.3",
     "posthog-js": "^1.176.0",
     "react": "^19.0.0",

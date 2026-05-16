@@ -67,6 +67,23 @@ export type EventMap = {
     path: string;
     track: TrackId;
   };
+
+  /**
+   * The user installed Pop Tips as a PWA on their device.
+   *
+   * On Android Chrome/Edge, the browser fires `appinstalled` reliably; we
+   * catch it in InstallPrompt and emit this event with source='inline_prompt'.
+   *
+   * On iOS Safari there is no install event. Instead we detect installation
+   * after-the-fact on the next visit: when `window.navigator.standalone === true`
+   * or `display-mode: standalone`, we know they launched from the home screen
+   * icon. We emit with source='detected_on_visit' so the funnel reports the
+   * install retroactively.
+   */
+  pwa_installed: {
+    platform: 'ios' | 'android' | 'desktop' | 'other';
+    source: 'inline_prompt' | 'footer_link' | 'detected_on_visit';
+  };
 };
 
 export type EventName = keyof EventMap;

@@ -1,6 +1,7 @@
 'use client';
 
 import { ONBOARDING_STEPS } from '@/lib/dashboard/placeholder-data';
+import { Check } from '@/components/icons';
 
 /**
  * Onboarding checklist — Day-1 zero-state hero.
@@ -51,7 +52,7 @@ export function OnboardingChecklist() {
                     : 'border-line bg-paper text-ink-faint'
                 }`}
               >
-                {step.done ? '✓' : i + 1}
+                {step.done ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : i + 1}
               </div>
               <h4 className="font-display text-lg font-medium italic text-ink">
                 {step.title}

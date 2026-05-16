@@ -85,7 +85,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong className="font-medium text-ink">Billing.</strong> For tippers, charging
-            the annual fee after your third tip and computing the per-tip take rate.
+            the annual fee after your third tip and computing the per-tip small fee.
           </li>
           <li>
             <strong className="font-medium text-ink">Communication.</strong> Sending you
@@ -176,16 +176,17 @@ export default function PrivacyPage() {
           escrow.
         </p>
         <p>
-          What we actually do: when you initiate a tip, we deep-link you into the payment
-          app you and the recipient both use (Venmo, Cash App, PayPal, or Zelle) with the
-          recipient&rsquo;s handle and your tip amount pre-filled. You confirm the
-          payment inside that app. The money moves directly from your payment account to
-          the recipient&rsquo;s payment account. The relevant privacy policy at that point
-          is the payment app&rsquo;s, not ours.
+          What we actually do: on the recipient&rsquo;s Pop Tips send page, you choose the
+          tip amount and select which payment app you want to use (Venmo, Cash App, PayPal,
+          or Zelle). Pop Tips then deep-links you into that app — the recipient&rsquo;s
+          handle and the amount you chose are both pre-filled when the app opens. You
+          confirm the payment inside the app. The money moves directly from your payment
+          account to the recipient&rsquo;s. The relevant privacy policy at that point is
+          the payment app&rsquo;s, not ours.
         </p>
         <p>
           We do see and record the <em>fact</em> of your tip (amount, time, recipient
-          handle, app used) so we can show it on your dashboard and compute our take rate.
+          handle, app used) so we can show it on your dashboard and compute our small fee.
           We do not see your payment-app balance, history, or other transactions.
         </p>
       </LegalSection>
@@ -196,13 +197,36 @@ export default function PrivacyPage() {
         title={<>SMS &amp; email <em className="italic text-jade-500">communication.</em></>}
       >
         <p>
-          When you sign up, you give us permission to text and email you for account-related
-          purposes — magic-link sign-ins, account confirmations, billing notices, and
-          occasional product updates.
+          Pop Tips communicates with you in two tiers, each with its own consent and opt-out.
+          You can be subscribed to either, both, or neither — separately.
+        </p>
+
+        <p className="font-medium text-ink">
+          Tier 1 — Account-essential messages.
         </p>
         <p>
-          <strong className="font-medium text-ink">Frequency:</strong> message frequency
-          varies. Most months you&rsquo;ll receive fewer than five messages.
+          When you sign up, you authorize Pop Tips to text and email you for account-related
+          purposes only: magic-link sign-ins, account confirmations, billing notices, and
+          security alerts. These are required to operate your account and continue regardless
+          of any marketing-tier preferences below.
+        </p>
+
+        <p className="font-medium text-ink">
+          Tier 2 — Marketing communications (optional, opt-in only).
+        </p>
+        <p>
+          With your explicit opt-in (separate from the consent above), we may send you
+          occasional location-relevant suggestions — such as top tip spots near you, featured
+          establishments in your city, or updates from partner organizations who care about
+          the appreciation economy. This tier is fully optional: you can subscribe at signup
+          or later in your account settings, and you can unsubscribe any time without affecting
+          your account-essential messages.
+        </p>
+
+        <p>
+          <strong className="font-medium text-ink">Frequency:</strong> account-essential
+          messages average fewer than five per month. Marketing messages, when subscribed,
+          average fewer than four per month.
         </p>
         <p>
           <strong className="font-medium text-ink">Costs:</strong> message and data rates
@@ -217,10 +241,10 @@ export default function PrivacyPage() {
         <p>
           <strong className="font-medium text-ink">Opt out:</strong> reply{' '}
           <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-sm text-ink">STOP</code> to
-          any SMS message to immediately opt out of future texts. To opt out of marketing
-          emails, use the unsubscribe link at the bottom of any marketing email.
-          Account-essential emails (billing, security) continue regardless of your
-          marketing preferences.
+          any SMS message to immediately opt out of future marketing texts. To opt out of
+          marketing emails, use the unsubscribe link at the bottom of any marketing email.
+          Account-essential messages continue regardless of marketing preferences and can
+          only be stopped by closing your account.
         </p>
         <p>
           We comply with the CTIA Short Code Monitoring Handbook and applicable

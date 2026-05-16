@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { TrackForcer } from '@/components/TrackForcer';
 import { PopCircle } from '@/components/PopCircle';
 import { Reveal } from '@/components/Reveal';
+import { ArrowRight } from '@/components/icons';
 
 export const metadata = {
   title: "You're in",
@@ -28,16 +29,21 @@ export default function TipperThanksPage() {
           <div>
             <Reveal>
               <p className="mb-4 font-mono text-xs font-medium uppercase tracking-wider2 text-coral-700">
-                You&rsquo;re in
+                Welcome
               </p>
             </Reveal>
             <Reveal delay={80}>
               <h1 className="font-display text-5xl font-medium leading-[0.98] tracking-tightest text-ink text-balance md:text-6xl">
-                Welcome to the{' '}
-                <em className="italic text-coral-500">appreciation economy.</em>
+                You&rsquo;re in.
               </h1>
             </Reveal>
-            <Reveal delay={160}>
+            <Reveal delay={140}>
+              <p className="mt-4 max-w-lg font-display text-2xl font-medium leading-snug text-ink-dim text-balance md:text-3xl">
+                And now <em className="italic text-coral-500">YOU</em> are empowering the
+                appreciation economy.
+              </p>
+            </Reveal>
+            <Reveal delay={220}>
               <p className="mt-6 max-w-md text-lg font-light leading-relaxed text-ink-dim md:text-xl">
                 Check your phone — we&rsquo;ve sent you a magic link to confirm your account.
                 No password to remember.
@@ -87,7 +93,7 @@ export default function TipperThanksPage() {
                   href="/"
                   className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-coral-700 hover:shadow-halo-coral active:scale-95"
                 >
-                  Back to home <span aria-hidden>→</span>
+                  Back to home <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                 </Link>
                 <Link
                   href="/#how-it-works"

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTrack } from '@/lib/track';
 import { track } from '@/lib/analytics';
+import { ArrowRight } from './icons';
 
 /**
  * Side-by-side coral + jade portrait cards — the brand's central duality
@@ -58,7 +59,7 @@ export function AudiencePortraits() {
           to reward it — not because they have to, but because it felt genuinely human.
         </p>
         <p className="relative mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider2 text-coral-700 transition-transform duration-200 group-hover:translate-x-1">
-          I want to tip <span aria-hidden>→</span>
+          I want to tip <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={1.5} aria-hidden />
         </p>
       </Link>
 
@@ -87,7 +88,7 @@ export function AudiencePortraits() {
           into ones worth tipping for — and deserve every cent that gratitude sends back.
         </p>
         <p className="relative mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider2 text-jade-700 transition-transform duration-200 group-hover:translate-x-1">
-          I want to receive tips <span aria-hidden>→</span>
+          I want to receive tips <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={1.5} aria-hidden />
         </p>
       </Link>
     </div>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { TrackForcer } from '@/components/TrackForcer';
 import { PopCircle } from '@/components/PopCircle';
 import { Reveal } from '@/components/Reveal';
+import { ArrowRight } from '@/components/icons';
 
 export const metadata = {
   title: 'Welcome aboard',
@@ -89,7 +90,7 @@ export default function RecipientThanksPage() {
                   href="/dashboard"
                   className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-jade-700 hover:shadow-halo-jade active:scale-95"
                 >
-                  Preview your dashboard <span aria-hidden>→</span>
+                  Preview your dashboard <ArrowRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                 </Link>
                 <Link
                   href="/#how-it-works"

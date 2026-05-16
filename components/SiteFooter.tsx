@@ -1,5 +1,10 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { Logo } from './Logo';
+import { Smartphone } from './icons';
+import { InstallPrompt, PWA_INSTALLED_KEY } from './InstallPrompt';
 
 const sections = [
   {
@@ -28,6 +33,15 @@ const sections = [
 ];
 
 export function SiteFooter() {
+  const [installed, setInstalled] = useState(true); // default true so SSR hides the link
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  useEffect(() => {
+    // Sync from localStorage on mount — show install link only when not installed
+    const flag = typeof window !== 'undefined' && window.localStorage.getItem(PWA_INSTALLED_KEY) === '1';
+    setInstalled(flag);
+  }, []);
+
   return (
     <footer className="mt-24 border-t border-line bg-surface">
       <div className="mx-auto max-w-5xl px-5 py-14 md:px-8 md:py-20">
@@ -72,10 +86,33 @@ export function SiteFooter() {
                     )}
                   </li>
                 ))}
+
+                {/* Conditional install link — only appears in About section
+                    when the app isn't installed. Quiet, no-nag. */}
+                {section.title === 'About' && !installed && (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => setShowPrompt((v) => !v)}
+                      className="inline-flex items-center gap-1.5 text-sm text-ink-dim transition-colors duration-200 hover:text-jade-500"
+                    >
+                      <Smartphone className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      Install the app
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
           ))}
         </div>
+
+        {/* Inline install prompt — shown when user taps the footer link.
+            Renders below the footer columns, brand-styled. */}
+        {showPrompt && !installed && (
+          <div className="mt-10">
+            <InstallPrompt forceOpen />
+          </div>
+        )}
 
         {/* Bottom row */}
         <div className="mt-14 flex flex-col gap-2 border-t border-line-soft pt-6 font-mono text-xs uppercase tracking-wider2 text-ink-faint sm:flex-row sm:items-center sm:justify-between">
@@ -86,3 +123,4 @@ export function SiteFooter() {
     </footer>
   );
 }
+

@@ -7,6 +7,7 @@ import { AudiencePortraits } from '@/components/AudiencePortraits';
 import { CelebrationBlock } from '@/components/CelebrationBlock';
 import { PopCircle } from '@/components/PopCircle';
 import { Reveal } from '@/components/Reveal';
+import { ArrowRight } from '@/components/icons';
 import { StepScan } from '@/components/illustrations/StepScan';
 import { StepHandoff } from '@/components/illustrations/StepHandoff';
 import { StepLands } from '@/components/illustrations/StepLands';
@@ -431,7 +432,7 @@ export default function HomePage() {
                     source="home_pricing"
                     intent="receive"
                   >
-                    Claim your handle <span aria-hidden>→</span>
+                    Claim your handle <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={1.5} aria-hidden />
                   </TrackCTA>
                 </div>
               </div>
@@ -484,6 +485,9 @@ export default function HomePage() {
                     <p className="mt-1 text-sm leading-relaxed text-ink-dim">
                       Pay once a year after your 3rd tip. That&rsquo;s it. Cancel anytime.
                     </p>
+                    <p className="mt-1.5 font-mono text-[11px] uppercase tracking-wider2 text-ink-faint">
+                      + {PRICING.take_rate} small fee per tip
+                    </p>
                   </li>
                 </ul>
 
@@ -496,7 +500,7 @@ export default function HomePage() {
                     source="home_pricing"
                     intent="tip"
                   >
-                    Get set up to tip <span aria-hidden>→</span>
+                    Get set up to tip <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={1.5} aria-hidden />
                   </TrackCTA>
                 </div>
               </div>
@@ -526,11 +530,12 @@ export default function HomePage() {
                 <span className="money font-semibold not-italic text-ink">
                   {PRICING.take_rate}
                 </span>{' '}
-                <em className="italic">per tip.</em>
+                <em className="italic">small fee, billed monthly.</em>
               </p>
               <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-ink-dim md:text-lg">
-                Annual fee charged on tip #{PRICING.activation_tip_number}. You&rsquo;ll see
-                it coming.
+                Annual fee charged on tip #{PRICING.activation_tip_number}. The small fee
+                is summed across your month&rsquo;s tips and billed once. You&rsquo;ll see
+                it all coming.
               </p>
               <p className="mt-4 font-mono text-xs uppercase tracking-wider2 text-ink-faint">
                 We take that so we can keep the appreciation economy running. You can see
