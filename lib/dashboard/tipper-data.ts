@@ -275,7 +275,7 @@ export const PLACEHOLDER_TIPPER_LEADERBOARD: TipperLeaderboardEntry[] = [
   { rank: 3, displayName: 'Tipper',     meta: 'Age 31 · Queens',       amountCents: 64500, medal: '🥉' },
   { rank: 4, displayName: 'Marcus J.',  meta: 'Age 34 · Brooklyn',     amountCents: 58300, optedInToReveal: true },
   { rank: 5, displayName: 'Tipper',     meta: 'Age 29 · Manhattan',    amountCents: 52800 },
-  { rank: 12, displayName: 'You',       meta: 'Top 18% · Age 30-39 · Brooklyn', amountCents: 31200, isYou: true },
+  { rank: 12, displayName: 'You',       meta: 'Top 18% in Sarasota', amountCents: 31200, isYou: true },
 ];
 
 export const TIPPER_ONBOARDING_STEPS = [

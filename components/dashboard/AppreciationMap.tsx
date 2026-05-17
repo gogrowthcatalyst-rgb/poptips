@@ -112,6 +112,10 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
         const { center, bbox } = computeBounds(currentPins);
         const maxTipCount = Math.max(...currentPins.map((p) => p.tipCount), 1);
 
+        // Diagnostic — let me see what the container measures as at this moment
+        const rect0 = mapContainerRef.current.getBoundingClientRect();
+        console.log('[AppreciationMap] container at init:', rect0.width, 'x', rect0.height);
+
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/light-v11',
@@ -123,10 +127,36 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
           pitchWithRotate: false,
         });
 
-        // Force initial re-measure. Mapbox occasionally creates the map
-        // before React's layout commits — without this, the map sees a
-        // 0x0 container and skips all tile fetches.
+        // Diagnostic — verify canvas dimensions match container
+        const canvas0 = map.getCanvas();
+        console.log('[AppreciationMap] canvas at create:', canvas0?.width, 'x', canvas0?.height);
+
+        // -- AGGRESSIVE RESIZE TIMING ---------------------------------
+        // Throw enough resize() calls that any "container 0x0 at this moment"
+        // timing window gets caught. RAF fires after the next paint when
+        // layout has definitely settled. Timeouts cover late-arriving
+        // reflows (web fonts loading, image dimensions resolving, etc.)
         map.resize();
+        requestAnimationFrame(() => {
+          if (!cancelled && mapInstanceRef.current) {
+            map.resize();
+            const rect1 = mapContainerRef.current?.getBoundingClientRect();
+            console.log('[AppreciationMap] container after RAF:', rect1?.width, 'x', rect1?.height);
+          }
+        });
+        setTimeout(() => {
+          if (!cancelled && mapInstanceRef.current) {
+            map.resize();
+            const canvas1 = map.getCanvas();
+            console.log('[AppreciationMap] canvas at 100ms:', canvas1?.width, 'x', canvas1?.height);
+          }
+        }, 100);
+        setTimeout(() => {
+          if (!cancelled && mapInstanceRef.current) {
+            map.resize();
+            console.log('[AppreciationMap] resize at 500ms; loaded:', map.loaded());
+          }
+        }, 500);
 
         // Compact attribution in bottom-right — required by Mapbox terms
         map.addControl(
@@ -140,14 +170,22 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
           'top-right',
         );
 
+        // Diagnostic event listeners — tell us EXACTLY where it dies if it does
+        map.on('styledata', () => console.log('[AppreciationMap] styledata fired'));
+        map.on('sourcedataloading', (e) => console.log('[AppreciationMap] source loading:', e.sourceId));
+        map.on('sourcedata', (e) => {
+          if (e.isSourceLoaded) console.log('[AppreciationMap] source loaded:', e.sourceId);
+        });
+        map.on('idle', () => console.log('[AppreciationMap] map idle (tiles loaded)'));
+
         map.on('load', () => {
           if (cancelled) return;
 
-          // Belt-and-suspenders — fire resize again after style load in
-          // case layout settled between map creation and style ready
           map.resize();
+          const canvas2 = map.getCanvas();
+          console.log('[AppreciationMap] on load → canvas:', canvas2?.width, 'x', canvas2?.height);
+          console.log('[AppreciationMap] on load → zoom:', map.getZoom(), 'center:', map.getCenter());
 
-          // Fit to all pins with breathing room
           map.fitBounds(bbox, { padding: 60, maxZoom: 11, duration: 0 });
 
           // Render each pin as a custom DOM marker, sized by tipCount.
@@ -208,16 +246,16 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
           });
         });
 
-        map.on('error', () => {
+        map.on('error', (e) => {
+          console.error('[AppreciationMap] map error:', e);
           setMapError(true);
         });
 
-        // Watch the container for size changes (window resize, dashboard
-        // panel reflow, mobile orientation) and re-measure the map. Without
-        // this, the map can render at the wrong size after a layout change.
+        // Watch the container for size changes — handles window resize,
+        // dashboard panel reflow, mobile orientation, etc.
         if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
           resizeObserver = new ResizeObserver(() => {
-            map.resize();
+            if (mapInstanceRef.current) mapInstanceRef.current.resize();
           });
           resizeObserver.observe(mapContainerRef.current);
         }

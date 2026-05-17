@@ -165,11 +165,12 @@ function TipperDashboardInner() {
       </Reveal>
 
       {/* APPRECIATION MAP — full width =================== */}
-      <Reveal delay={240}>
-        <div className="mb-4">
-          <AppreciationMap pins={mapPins} />
-        </div>
-      </Reveal>
+      {/* NOTE: deliberately NOT wrapped in <Reveal> — opacity:0 during the
+          initial mount can interfere with Mapbox's render scheduling on some
+          browsers (rAF throttling for invisible elements). Pops in directly. */}
+      <div className="mb-4">
+        <AppreciationMap pins={mapPins} />
+      </div>
 
       {/* SHARE MILESTONE — when threshold crossed ========== */}
       {showMilestone && (
