@@ -250,8 +250,12 @@ export const PLACEHOLDER_MAP_PINS: MapPin[] = [
   { location: 'Park Slope',          city: 'Brooklyn, NY',     lat: 40.6710, lng: -73.9814, tipCount: 12, totalCents: 18200 },
   { location: 'Williamsburg',        city: 'Brooklyn, NY',     lat: 40.7081, lng: -73.9571, tipCount: 9,  totalCents: 11500 },
   { location: 'East Village',        city: 'Manhattan, NY',     lat: 40.7264, lng: -73.9818, tipCount: 7,  totalCents: 9200 },
+  { location: 'Downtown Raleigh',    city: 'Raleigh, NC',       lat: 35.7796, lng: -78.6382, tipCount: 6,  totalCents: 7400 },
   { location: 'Downtown LA',         city: 'Los Angeles, CA',  lat: 34.0407, lng: -118.2468, tipCount: 5, totalCents: 7600 },
+  { location: 'Downtown Sarasota',   city: 'Sarasota, FL',      lat: 27.3364, lng: -82.5307, tipCount: 5,  totalCents: 8200 },
   { location: 'Mission District',    city: 'San Francisco, CA', lat: 37.7599, lng: -122.4148, tipCount: 4, totalCents: 5400 },
+  { location: 'Broadway District',   city: 'Red Bank, NJ',      lat: 40.3473, lng: -74.0643, tipCount: 4,  totalCents: 4900 },
+  { location: 'Pacific Avenue',      city: 'Santa Cruz, CA',    lat: 36.9741, lng: -122.0308, tipCount: 3, totalCents: 4200 },
   { location: 'South Beach',         city: 'Miami, FL',        lat: 25.7826, lng: -80.1340, tipCount: 3,  totalCents: 6800 },
 ];
 
