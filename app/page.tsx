@@ -483,16 +483,13 @@ export default function HomePage() {
                   </li>
                   <li>
                     <p className="font-display text-lg font-medium italic text-ink">
-                      <span className="money font-semibold not-italic text-ink">
-                        {PRICING.annual_fee}
-                      </span>{' '}
-                      / year.
+                      Small fees.
                     </p>
                     <p className="mt-1 text-sm leading-relaxed text-ink-dim">
-                      Pay once a year after your 3rd tip. That&rsquo;s it. Cancel anytime.
+                      Pay once a year after your 3rd tip.
                     </p>
                     <p className="mt-1.5 font-mono text-[11px] uppercase tracking-wider2 text-ink-faint">
-                      + {PRICING.take_rate} small fee per tip
+                      + {PRICING.take_rate} per tip · That&rsquo;s it. Cancel anytime.
                     </p>
                   </li>
                 </ul>
