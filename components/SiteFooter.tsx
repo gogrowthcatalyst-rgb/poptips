@@ -48,7 +48,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-5xl px-5 py-14 md:px-8 md:py-20">
         {/* Brand block — primary tagline leads, secondary supports, instantly closes */}
         <div className="mb-14 max-w-2xl">
-          <Logo variant="h-dark" height={36} className="mb-6" alt="Pop Tips" />
+          <Logo variant="h-dark" height={44} className="mb-6" alt="Pop Tips" />
           <p className="font-display text-3xl font-medium leading-[1.1] text-ink md:text-4xl">
             Pop Tips enables one-to-one tipping,{' '}
             <em className="italic text-accent">directly.</em>

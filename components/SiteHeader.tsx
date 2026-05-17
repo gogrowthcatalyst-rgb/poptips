@@ -30,7 +30,7 @@ export function SiteHeader() {
           }
           className="inline-flex items-center transition-opacity duration-200 hover:opacity-80"
         >
-          <Logo variant="h" height={32} priority alt="Pop Tips" />
+          <Logo variant="h" height={40} priority alt="Pop Tips" />
         </Link>
 
         <nav>

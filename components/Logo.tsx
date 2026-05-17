@@ -17,24 +17,34 @@ interface LogoProps {
   alt?: string;
 }
 
+/**
+ * Per-variant aspect ratio — different files have different intrinsic
+ * dimensions. Pete's new files (h, h-dark, h-white, icon, icon-white) are
+ * 1000×260 horizontal / 1000×1000 square. Legacy mono files still use the
+ * old 1176×420 horizontal / 1:1 square dimensions until they're refreshed.
+ */
 const ASPECT: Record<LogoVariant, number> = {
-  h:           1176 / 420,
-  'h-dark':    1176 / 420,
+  h:           1000 / 260,
+  'h-dark':    1000 / 260,
   'h-mono':    1176 / 420,
-  'h-white':   1176 / 420,
+  'h-white':   1000 / 260,
   icon:        1,
   'icon-mono': 1,
   'icon-white':1,
 };
 
+/**
+ * File mapping. Pete's new files use the `pop-tips-logo-*` naming pattern;
+ * legacy files use `pop-tips-*`. Both pattern coexist in /public/logos/.
+ */
 const SRC: Record<LogoVariant, string> = {
-  h:           '/logos/pop-tips-h.png',
-  'h-dark':    '/logos/pop-tips-h-dark.png',
+  h:           '/logos/pop-tips-logo-h.png',
+  'h-dark':    '/logos/pop-tips-logo-h.png',
   'h-mono':    '/logos/pop-tips-h-mono.png',
-  'h-white':   '/logos/pop-tips-h-white.png',
-  icon:        '/logos/pop-tips-icon.png',
+  'h-white':   '/logos/pop-tips-logo-h-dark.png',
+  icon:        '/logos/pop-tips-logo.png',
   'icon-mono': '/logos/pop-tips-icon-mono.png',
-  'icon-white':'/logos/pop-tips-icon-white.png',
+  'icon-white':'/logos/pop-tips-logo-dark.png',
 };
 
 export function Logo({
