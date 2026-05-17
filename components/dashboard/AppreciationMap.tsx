@@ -90,6 +90,7 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
     if (mapInstanceRef.current) return; // already initialized
 
     let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
 
     (async () => {
       try {
@@ -108,11 +109,15 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
           center,
           zoom: 3,
           attributionControl: false,
-          // Keep interaction simple — no rotation, no pitch
           dragRotate: false,
           touchPitch: false,
           pitchWithRotate: false,
         });
+
+        // Force initial re-measure. Mapbox occasionally creates the map
+        // before React's layout commits — without this, the map sees a
+        // 0x0 container and skips all tile fetches.
+        map.resize();
 
         // Compact attribution in bottom-right — required by Mapbox terms
         map.addControl(
@@ -129,8 +134,11 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
         map.on('load', () => {
           if (cancelled) return;
 
-          // Fit to all pins with breathing room. maxZoom prevents over-zoom
-          // when all pins are very close together (e.g. all in one city).
+          // Belt-and-suspenders — fire resize again after style load in
+          // case layout settled between map creation and style ready
+          map.resize();
+
+          // Fit to all pins with breathing room
           map.fitBounds(bbox, { padding: 60, maxZoom: 11, duration: 0 });
 
           // Render each pin as a custom DOM marker, sized by tipCount.
@@ -144,10 +152,10 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
             el.style.width = `${sizePx}px`;
             el.style.height = `${sizePx}px`;
             el.style.borderRadius = '50%';
-            el.style.background = '#F06844'; // coral-500
+            el.style.background = '#F06844';
             el.style.boxShadow =
               '0 0 0 4px rgba(240, 104, 68, 0.20), 0 2px 8px rgba(14, 20, 32, 0.18)';
-            el.style.border = '2px solid #FBF7F1'; // paper outline
+            el.style.border = '2px solid #FBF7F1';
             el.style.cursor = 'pointer';
             el.style.transition = 'transform 0.15s ease';
             el.addEventListener('mouseenter', () => {
@@ -157,7 +165,6 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
               el.style.transform = 'scale(1)';
             });
 
-            // Brand-styled popup with location + amount + tip count
             const { sign, whole } = splitDollars(pin.totalCents);
             const popupHTML = `
               <div style="font-family: 'Geist', system-ui, sans-serif; padding: 4px 2px; min-width: 140px;">
@@ -196,6 +203,16 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
           setMapError(true);
         });
 
+        // Watch the container for size changes (window resize, dashboard
+        // panel reflow, mobile orientation) and re-measure the map. Without
+        // this, the map can render at the wrong size after a layout change.
+        if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
+          resizeObserver = new ResizeObserver(() => {
+            map.resize();
+          });
+          resizeObserver.observe(mapContainerRef.current);
+        }
+
         mapInstanceRef.current = map;
       } catch (err) {
         console.warn('Mapbox failed to initialize, falling back to placeholder', err);
@@ -205,6 +222,10 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
 
     return () => {
       cancelled = true;
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
