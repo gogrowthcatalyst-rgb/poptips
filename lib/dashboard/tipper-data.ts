@@ -22,6 +22,9 @@ export interface TipperUser {
   lastInitial: string;
   /** Optional — Pete locked age as an optional field for the age-group benchmark feature */
   age?: number;
+  /** Optional more-granular neighborhood within the city. When set, shown as
+   *  "Lido Beach · Sarasota, FL" in the welcome strip. */
+  neighborhood?: string;
   city: string;
   region: string;
 }
@@ -128,11 +131,11 @@ export interface TipperLeaderboardEntry {
 // -- DATA ----------------------------------------------------------------
 
 export const PLACEHOLDER_TIPPER_USER: TipperUser = {
-  firstName: 'Alex',
+  firstName: 'Kelly',
   lastInitial: 'M',
-  age: 32,
-  city: 'Brooklyn',
-  region: 'NY',
+  neighborhood: 'Lido Beach',
+  city: 'Sarasota',
+  region: 'FL',
 };
 
 export const PLACEHOLDER_TIPPER_STATS: TipperStats = {
@@ -207,7 +210,7 @@ export const PLACEHOLDER_AGE_BENCHMARK: AgeBenchmark = {
   yourPercentile: 18,
   bins: [22, 38, 55, 72, 90, 100, 88, 70, 52, 38, 25, 14, 9, 5],
   yourBin: 8,
-  hasAge: true,
+  hasAge: false,
 };
 
 export const PLACEHOLDER_TIPPER_APP_DISTRIBUTION: Distribution = {
@@ -245,18 +248,25 @@ export const PLACEHOLDER_TIPPER_CHART_SERIES: ChartSeries = [
 ];
 
 export const PLACEHOLDER_MAP_PINS: MapPin[] = [
-  { location: 'Brooklyn Heights',   city: 'Brooklyn, NY',     lat: 40.6957, lng: -73.9938, tipCount: 18, totalCents: 22400 },
-  { location: 'SoHo',                city: 'Manhattan, NY',     lat: 40.7235, lng: -74.0006, tipCount: 14, totalCents: 8900 },
-  { location: 'Park Slope',          city: 'Brooklyn, NY',     lat: 40.6710, lng: -73.9814, tipCount: 12, totalCents: 18200 },
-  { location: 'Williamsburg',        city: 'Brooklyn, NY',     lat: 40.7081, lng: -73.9571, tipCount: 9,  totalCents: 11500 },
-  { location: 'East Village',        city: 'Manhattan, NY',     lat: 40.7264, lng: -73.9818, tipCount: 7,  totalCents: 9200 },
-  { location: 'Downtown Raleigh',    city: 'Raleigh, NC',       lat: 35.7796, lng: -78.6382, tipCount: 6,  totalCents: 7400 },
-  { location: 'Downtown LA',         city: 'Los Angeles, CA',  lat: 34.0407, lng: -118.2468, tipCount: 5, totalCents: 7600 },
-  { location: 'Downtown Sarasota',   city: 'Sarasota, FL',      lat: 27.3364, lng: -82.5307, tipCount: 5,  totalCents: 8200 },
-  { location: 'Mission District',    city: 'San Francisco, CA', lat: 37.7599, lng: -122.4148, tipCount: 4, totalCents: 5400 },
-  { location: 'Broadway District',   city: 'Red Bank, NJ',      lat: 40.3473, lng: -74.0643, tipCount: 4,  totalCents: 4900 },
-  { location: 'Pacific Avenue',      city: 'Santa Cruz, CA',    lat: 36.9741, lng: -122.0308, tipCount: 3, totalCents: 4200 },
-  { location: 'South Beach',         city: 'Miami, FL',        lat: 25.7826, lng: -80.1340, tipCount: 3,  totalCents: 6800 },
+  // Sarasota cluster — Kelly's home base (heaviest pin density + dollars)
+  { location: 'Lido Beach',          city: 'Sarasota, FL',      lat: 27.3151, lng: -82.5733, tipCount: 22, totalCents: 28400 },
+  { location: 'St. Armands Circle',   city: 'Sarasota, FL',      lat: 27.3107, lng: -82.5774, tipCount: 14, totalCents: 16700 },
+  { location: 'Siesta Key Village',   city: 'Sarasota, FL',      lat: 27.2664, lng: -82.5535, tipCount: 11, totalCents: 12300 },
+  { location: 'Downtown Sarasota',    city: 'Sarasota, FL',      lat: 27.3364, lng: -82.5307, tipCount: 8,  totalCents: 9500 },
+  // NYC area — frequent travel
+  { location: 'Brooklyn Heights',     city: 'Brooklyn, NY',     lat: 40.6957, lng: -73.9938, tipCount: 9,  totalCents: 11200 },
+  { location: 'SoHo',                 city: 'Manhattan, NY',     lat: 40.7235, lng: -74.0006, tipCount: 7,  totalCents: 5800 },
+  { location: 'East Village',         city: 'Manhattan, NY',     lat: 40.7264, lng: -73.9818, tipCount: 5,  totalCents: 4900 },
+  // North Carolina visits
+  { location: 'Downtown Raleigh',     city: 'Raleigh, NC',       lat: 35.7796, lng: -78.6382, tipCount: 6,  totalCents: 7400 },
+  // Jersey shore
+  { location: 'Broadway District',    city: 'Red Bank, NJ',      lat: 40.3473, lng: -74.0643, tipCount: 4,  totalCents: 4900 },
+  // West coast occasional
+  { location: 'Downtown LA',          city: 'Los Angeles, CA',  lat: 34.0407, lng: -118.2468, tipCount: 5, totalCents: 7600 },
+  { location: 'Mission District',     city: 'San Francisco, CA', lat: 37.7599, lng: -122.4148, tipCount: 4, totalCents: 5400 },
+  { location: 'Pacific Avenue',       city: 'Santa Cruz, CA',    lat: 36.9741, lng: -122.0308, tipCount: 3, totalCents: 4200 },
+  // South Florida getaway
+  { location: 'South Beach',          city: 'Miami, FL',        lat: 25.7826, lng: -80.1340, tipCount: 4,  totalCents: 8200 },
 ];
 
 export const PLACEHOLDER_TIPPER_LEADERBOARD: TipperLeaderboardEntry[] = [

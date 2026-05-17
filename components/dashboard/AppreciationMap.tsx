@@ -64,6 +64,13 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
+  // Capture pins in a ref so the init effect can read them WITHOUT depending
+  // on them as a dep. Parent re-renders create new pins array references on
+  // every render; depending on `pins` would tear down + recreate the map
+  // each time, sometimes interrupting tile fetches mid-flight.
+  const pinsRef = useRef<Pin[]>(pins);
+  pinsRef.current = pins;
+
   const [mapError, setMapError] = useState(false);
 
   const hasPins = pins.length > 0;
@@ -100,8 +107,10 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
         const mapboxgl = mbgl.default;
         mapboxgl.accessToken = MAPBOX_TOKEN as string;
 
-        const { center, bbox } = computeBounds(pins);
-        const maxTipCount = Math.max(...pins.map((p) => p.tipCount), 1);
+        // Read pins from the ref so this effect doesn't need pins as a dep
+        const currentPins = pinsRef.current;
+        const { center, bbox } = computeBounds(currentPins);
+        const maxTipCount = Math.max(...currentPins.map((p) => p.tipCount), 1);
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
@@ -142,7 +151,7 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
           map.fitBounds(bbox, { padding: 60, maxZoom: 11, duration: 0 });
 
           // Render each pin as a custom DOM marker, sized by tipCount.
-          pins.forEach((pin) => {
+          currentPins.forEach((pin) => {
             const sizePx = Math.max(
               14,
               Math.min(40, Math.round((pin.tipCount / maxTipCount) * 28) + 14),
@@ -231,7 +240,7 @@ export function AppreciationMap({ pins }: AppreciationMapProps) {
         mapInstanceRef.current = null;
       }
     };
-  }, [useRealMap, pins]);
+  }, [useRealMap]);
 
   // -- RENDER -------------------------------------------------------------
 

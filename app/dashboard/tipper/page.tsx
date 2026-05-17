@@ -83,9 +83,10 @@ function TipperDashboardInner() {
                 'Your tipper account is ready. Now go appreciate someone.'
               ) : (
                 <>
+                  {user.neighborhood && <>{user.neighborhood} &middot; </>}
                   {user.city}, {user.region}
                   {stats.streak.weeks > 0 && (
-                    <> · {stats.streak.weeks}-week appreciation streak.</>
+                    <> &middot; {stats.streak.weeks}-week appreciation streak.</>
                   )}
                 </>
               )}
