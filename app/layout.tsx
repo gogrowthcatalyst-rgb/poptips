@@ -90,11 +90,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     } catch (e) {}
   `.trim();
 
+  // Service worker registration — required for Chrome on Android to fire
+  // beforeinstallprompt. Loads after window 'load' so it doesn't compete
+  // with the main render path. The worker itself is minimal (no caching
+  // strategy yet); its job right now is just to satisfy install criteria.
+  const swRegister = `
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(err) {
+          console.warn('SW registration failed:', err);
+        });
+      });
+    }
+  `.trim();
+
   return (
     <html lang="en" data-track="neutral" className={fontVars}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlash }} />
         <script dangerouslySetInnerHTML={{ __html: pwaDetect }} />
+        <script dangerouslySetInnerHTML={{ __html: swRegister }} />
       </head>
       <body className="flex min-h-screen flex-col bg-paper font-body text-ink">
         <TrackProvider>

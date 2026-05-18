@@ -1,11 +1,31 @@
 {
   "name": "Pop Tips",
   "short_name": "Pop Tips",
-  "description": "100% to the worker. Instantly.",
+  "description": "One-to-one tipping, directly. Empowering the appreciation economy.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FBF7F1",
   "theme_color": "#FBF7F1",
-  "icons": []
+  "icons": [
+    {
+      "src": "/logos/pop-tips-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logos/pop-tips-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logos/pop-tips-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }
+

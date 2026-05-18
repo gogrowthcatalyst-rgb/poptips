@@ -25,6 +25,12 @@ const sections = [
     ],
   },
   {
+    title: 'For organizations',
+    links: [
+      { href: 'https://corp.pop.tips', label: 'Take tipping off your books', external: true },
+    ],
+  },
+  {
     title: 'About',
     links: [
       { href: '/privacy', label: 'Privacy' },
@@ -63,7 +69,7 @@ export function SiteFooter() {
         </div>
 
         {/* Three columns */}
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {sections.map((section) => (
             <div key={section.title}>
               <h3 className="mb-4 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-faint">

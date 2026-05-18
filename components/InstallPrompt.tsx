@@ -167,16 +167,27 @@ export function InstallPrompt({ forceOpen = false }: { forceOpen?: boolean }) {
 
           {platform === 'ios' && (
             <p className="mt-2 text-sm leading-relaxed text-ink-dim md:text-base">
-              Tap the <strong className="font-medium text-ink">Share</strong> button below
-              (the square with the arrow), then choose{' '}
+              Tap the <strong className="font-medium text-ink">Share</strong> button in
+              Safari&rsquo;s toolbar (the square with the up-arrow at the bottom of the screen),
+              then scroll and choose{' '}
               <strong className="font-medium text-ink">Add to Home Screen</strong>.
               You&rsquo;ll get an app icon that opens Pop Tips full-screen, no browser bar.
             </p>
           )}
-          {platform === 'android' && (
+          {platform === 'android' && deferredEvent && (
             <p className="mt-2 text-sm leading-relaxed text-ink-dim md:text-base">
-              Pop Tips works offline-first as an installed app on your home screen.
-              Tap below to install — takes one second.
+              Pop Tips runs as an app on your home screen. Tap the button below — it&rsquo;s
+              one second.
+            </p>
+          )}
+          {platform === 'android' && !deferredEvent && (
+            <p className="mt-2 text-sm leading-relaxed text-ink-dim md:text-base">
+              Tap your browser&rsquo;s menu — the{' '}
+              <strong className="font-medium text-ink">three dots</strong> in the top-right
+              corner — then choose{' '}
+              <strong className="font-medium text-ink">Install app</strong> or{' '}
+              <strong className="font-medium text-ink">Add to Home screen</strong>. Pop Tips
+              opens full-screen from your home screen like any other app.
             </p>
           )}
           {(platform === 'desktop' || platform === 'other') && (
