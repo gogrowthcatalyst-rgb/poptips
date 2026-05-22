@@ -17,7 +17,7 @@ const PROMISES = [
   {
     eyebrow: '02',
     title: 'Your wallet, your call.',
-    body: 'Pick from Venmo, Cash App, PayPal, or Zelle. Switch anytime.',
+    body: 'Pick from Venmo, Cash App, or PayPal. Switch anytime.',
     tone: 'coral' as const,
   },
   {

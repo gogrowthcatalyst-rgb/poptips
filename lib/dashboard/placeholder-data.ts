@@ -59,7 +59,7 @@ export interface RecentTip {
   name: string;
   timeLabel: string;
   note?: string;
-  app: 'Venmo' | 'Cash App' | 'PayPal' | 'Zelle';
+  app: 'Venmo' | 'Cash App' | 'PayPal';
   amountCents: number;
   swatch: 'coral' | 'jade' | 'gold' | 'violet' | 'coral-dark';
 }
@@ -89,7 +89,6 @@ export interface AppDistribution {
   venmo: number;
   cashapp: number;
   paypal: number;
-  zelle: number;
 }
 
 /** 7 days × 6 time blocks. Each value 0–4 (intensity bucket). */
@@ -141,7 +140,7 @@ export const PLACEHOLDER_RECENT_TIPS: RecentTip[] = [
   { initials: 'MK', name: 'Maria K.', timeLabel: 'Today · 2:14pm', note: 'thanks for the color magic ✨', app: 'Venmo', amountCents: 2000, swatch: 'coral' },
   { initials: 'JB', name: 'Jordan B.', timeLabel: 'Today · 11:48am', app: 'Cash App', amountCents: 1500, swatch: 'jade' },
   { initials: 'RS', name: 'Rachel S.', timeLabel: 'Yesterday · 6:22pm', app: 'Venmo', amountCents: 1000, swatch: 'gold' },
-  { initials: 'AN', name: 'Anonymous', timeLabel: 'Yesterday · 4:01pm', note: "best cut I've had in years", app: 'Zelle', amountCents: 2500, swatch: 'violet' },
+  { initials: 'AN', name: 'Anonymous', timeLabel: 'Yesterday · 4:01pm', note: "best cut I've had in years", app: 'PayPal', amountCents: 2500, swatch: 'gold' },
   { initials: 'DT', name: 'Dan T.', timeLabel: 'Mon · 7:30pm', app: 'PayPal', amountCents: 3000, swatch: 'coral-dark' },
   { initials: 'AL', name: 'Aisha L.', timeLabel: 'Sat · 3:15pm', note: 'the color is perfect', app: 'Venmo', amountCents: 1200, swatch: 'jade' },
 ];
@@ -174,7 +173,6 @@ export const PLACEHOLDER_APP_DISTRIBUTION: AppDistribution = {
   venmo: 52,
   cashapp: 28,
   paypal: 12,
-  zelle: 8,
 };
 
 // 7 rows (Mon → Sun), 6 time blocks (6a, 10a, 2p, 6p, 10p, 2a)
@@ -278,7 +276,7 @@ export function getEmptyData() {
     recentTips: [],
     achievements: PLACEHOLDER_ACHIEVEMENTS.map((a) => ({ ...a, unlocked: false })),
     benchmark: PLACEHOLDER_BENCHMARK, // category info still shown even when empty
-    appDistribution: { venmo: 0, cashapp: 0, paypal: 0, zelle: 0 },
+    appDistribution: { venmo: 0, cashapp: 0, paypal: 0 },
     heatmap: Array.from({ length: 7 }, () => Array(6).fill(0)) as Heatmap,
     monthBars: Array(8).fill(0) as MiniBarSeries,
     chartSeries: [] as ChartSeries,

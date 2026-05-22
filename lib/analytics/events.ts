@@ -48,7 +48,7 @@ export type EventMap = {
   /** User picked a payment app and we deep-linked out */
   tip_app_opened: {
     handle: string;
-    app: 'venmo' | 'cashapp' | 'paypal' | 'zelle';
+    app: 'venmo' | 'cashapp' | 'paypal';
     amount: number | null;
   };
 

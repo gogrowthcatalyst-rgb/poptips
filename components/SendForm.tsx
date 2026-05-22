@@ -3,31 +3,33 @@
 import { useState } from 'react';
 import { cn } from '@/lib/cn';
 import { track } from '@/lib/analytics';
+import { buildDeepLink } from '@/lib/deep-links';
+import { PAYMENT_APP_META } from '@/lib/payment-apps';
+import type { PaymentApp } from '@/lib/payment-apps';
+
+interface RecipientApp {
+  app: PaymentApp;
+  appHandle: string;
+}
 
 interface Props {
   handle: string;
   displayName: string;
+  /** The recipient's connected payment apps, in display order */
+  apps: RecipientApp[];
 }
 
 const PRESETS = [5, 10, 20, 50] as const;
 
-const APPS = [
-  { id: 'venmo',   label: 'Venmo',    subtitle: 'Most common' },
-  { id: 'cashapp', label: 'Cash App', subtitle: '' },
-  { id: 'paypal',  label: 'PayPal',   subtitle: '' },
-  { id: 'zelle',   label: 'Zelle',    subtitle: 'No fees' },
-] as const;
-
-type AppId = (typeof APPS)[number]['id'];
-
 /**
- * The send-page form. Owns amount + app picker state, fires the
- * tip_amount_selected and tip_app_opened analytics events.
+ * The send-page form. Owns amount + app picker state. On app tap:
+ *   1. Logs the tip event to /api/tips (status 'initiated') — fire and forget
+ *   2. Fires the tip_app_opened analytics event
+ *   3. Deep-links into the chosen payment app with handle + amount prefilled
  *
- * Real deep links wire in Session 5; for now this is the funnel
- * endpoint we measure (profile_viewed → tip_send_started → tip_app_opened).
+ * Pop Tips never touches the money — the customer confirms inside their app.
  */
-export function SendForm({ handle }: Props) {
+export function SendForm({ handle, apps }: Props) {
   const [amount, setAmount] = useState<number | null>(20);
   const [customRaw, setCustomRaw] = useState<string>('');
   const [usingCustom, setUsingCustom] = useState(false);
@@ -52,9 +54,27 @@ export function SendForm({ handle }: Props) {
     }
   };
 
-  const openApp = (appId: AppId) => {
+  const openApp = (appHandle: string, appId: PaymentApp) => {
+    if (amount === null) return;
+
+    const url = buildDeepLink({ app: appId, appHandle, amount });
+    if (!url) return;
+
     track('tip_app_opened', { handle, app: appId, amount });
-    // Real deep links wire in Session 5.
+
+    // Log the tip event — fire and forget; never block the handoff.
+    const amountCents = Math.round(amount * 100);
+    void fetch('/api/tips', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ handle, app: appId, amountCents }),
+      keepalive: true,
+    }).catch(() => {
+      /* non-fatal — the tip still opens */
+    });
+
+    // Hand off to the payment app.
+    window.location.href = url;
   };
 
   return (
@@ -118,28 +138,31 @@ export function SendForm({ handle }: Props) {
           Send via
         </h2>
         <p className="mt-1 text-xs text-ink-faint">
-          Real deep links wire in Session 5. Tapping fires an analytics event.
+          We open the app pre-filled with your amount. You confirm and send.
         </p>
         <ul className="mt-5 grid gap-3 md:grid-cols-2">
-          {APPS.map((opt) => (
-            <li key={opt.id}>
-              <button
-                type="button"
-                onClick={() => openApp(opt.id)}
-                disabled={amount === null}
-                className="flex w-full cursor-pointer items-center justify-between rounded-2xl border-2 border-line bg-paper px-6 py-5 text-left transition-all duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-accent hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-glow active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <span className="font-display text-xl font-medium text-ink md:text-2xl">
-                  {opt.label}
-                </span>
-                {opt.subtitle && (
-                  <span className="font-mono text-[10px] font-medium uppercase tracking-wider2 text-accent">
-                    {opt.subtitle}
+          {apps.map((opt) => {
+            const meta = PAYMENT_APP_META[opt.app];
+            return (
+              <li key={opt.app}>
+                <button
+                  type="button"
+                  onClick={() => openApp(opt.appHandle, opt.app)}
+                  disabled={amount === null}
+                  className="flex w-full cursor-pointer items-center justify-between rounded-2xl border-2 border-line bg-paper px-6 py-5 text-left transition-all duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-accent hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-glow active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="font-display text-xl font-medium text-ink md:text-2xl">
+                    {meta.label}
                   </span>
-                )}
-              </button>
-            </li>
-          ))}
+                  {meta.subtitle && (
+                    <span className="font-mono text-[10px] font-medium uppercase tracking-wider2 text-accent">
+                      {meta.subtitle}
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </section>
     </>

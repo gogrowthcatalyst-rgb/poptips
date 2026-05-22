@@ -53,7 +53,7 @@ export default function PrivacyPage() {
           handle you choose for your tipping page (e.g.{' '}
           <span className="font-mono text-ink">pop.tips/your-name</span>), an optional
           profile photo, and the payment-app handles you list for receiving tips (Venmo,
-          Cash App, PayPal, or Zelle).
+          Cash App, or PayPal).
         </p>
         <p>
           <strong className="font-medium text-ink">Automatically:</strong> standard
@@ -178,7 +178,7 @@ export default function PrivacyPage() {
         <p>
           What we actually do: on the recipient&rsquo;s Pop Tips send page, you choose the
           tip amount and select which payment app you want to use (Venmo, Cash App, PayPal,
-          or Zelle). Pop Tips then deep-links you into that app — the recipient&rsquo;s
+          or PayPal). Pop Tips then deep-links you into that app — the recipient&rsquo;s
           handle and the amount you chose are both pre-filled when the app opens. You
           confirm the payment inside the app. The money moves directly from your payment
           account to the recipient&rsquo;s. The relevant privacy policy at that point is

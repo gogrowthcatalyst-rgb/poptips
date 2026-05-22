@@ -91,12 +91,11 @@ const APP_COLORS = {
   venmo:   '#F06844', // coral
   cashapp: '#2C6F57', // jade
   paypal:  '#E9A21C', // gold
-  zelle:   '#6B5BFF', // violet — only place we use this, signals Zelle's bank-tied identity
 } as const;
 
 export function AppDistribution({ data }: { data: Distribution }) {
-  const { venmo, cashapp, paypal, zelle } = data;
-  const total = venmo + cashapp + paypal + zelle;
+  const { venmo, cashapp, paypal } = data;
+  const total = venmo + cashapp + paypal;
   const hasData = total > 0;
 
   // Build donut segments
@@ -104,7 +103,6 @@ export function AppDistribution({ data }: { data: Distribution }) {
     { key: 'venmo',   label: 'Venmo',    pct: venmo,   color: APP_COLORS.venmo },
     { key: 'cashapp', label: 'Cash App', pct: cashapp, color: APP_COLORS.cashapp },
     { key: 'paypal',  label: 'PayPal',   pct: paypal,  color: APP_COLORS.paypal },
-    { key: 'zelle',   label: 'Zelle',    pct: zelle,   color: APP_COLORS.zelle },
   ];
 
   // Donut math

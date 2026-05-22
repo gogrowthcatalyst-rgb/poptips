@@ -66,7 +66,7 @@ export interface Regular {
   recipient: Recipient;
   /** Quick-tap amounts in cents — e.g. [500, 1000, 2000] = $5/$10/$20 buttons */
   quickAmountsCents: number[];
-  defaultApp: 'Venmo' | 'Cash App' | 'PayPal' | 'Zelle';
+  defaultApp: 'Venmo' | 'Cash App' | 'PayPal';
 }
 
 export interface SentTip {
@@ -76,7 +76,7 @@ export interface SentTip {
   timeLabel: string;
   /** What YOU wrote — your appreciation note to them */
   note?: string;
-  app: 'Venmo' | 'Cash App' | 'PayPal' | 'Zelle';
+  app: 'Venmo' | 'Cash App' | 'PayPal';
   amountCents: number;
   swatch: 'coral' | 'jade' | 'gold' | 'violet' | 'coral-dark';
 }
@@ -183,7 +183,7 @@ export const PLACEHOLDER_SENT_TIPS: SentTip[] = [
   { recipientInitials: 'MK', recipientName: 'Maria K.', recipientRole: 'Stylist',          timeLabel: 'Today · 2:14pm',   note: 'thank you for the color magic ✨', app: 'Venmo',    amountCents: 2000, swatch: 'jade' },
   { recipientInitials: 'JB', recipientName: 'Jordan B.', recipientRole: 'Barista',          timeLabel: 'Today · 8:32am',   app: 'Cash App', amountCents: 300,  swatch: 'coral' },
   { recipientInitials: 'RS', recipientName: 'Ravi S.', recipientRole: 'Uber Driver',         timeLabel: 'Yesterday · 11:48pm', note: 'great late-night ride', app: 'Venmo', amountCents: 1000, swatch: 'gold' },
-  { recipientInitials: 'AN', recipientName: 'Hotel housekeeping', recipientRole: 'Hotel staff', timeLabel: 'Yesterday · 9:00am', note: 'thank you for the spotless room', app: 'Zelle', amountCents: 2500, swatch: 'violet' },
+  { recipientInitials: 'AN', recipientName: 'Hotel housekeeping', recipientRole: 'Hotel staff', timeLabel: 'Yesterday · 9:00am', note: 'thank you for the spotless room', app: 'PayPal', amountCents: 2500, swatch: 'gold' },
   { recipientInitials: 'DT', recipientName: 'Dana T.', recipientRole: 'Bartender',           timeLabel: 'Sat · 11:30pm',   app: 'PayPal',   amountCents: 3000, swatch: 'coral-dark' },
   { recipientInitials: 'AL', recipientName: 'Aisha L.', recipientRole: 'Massage Therapist',  timeLabel: 'Fri · 3:15pm',    note: 'best 90 minutes of my month', app: 'Venmo', amountCents: 4000, swatch: 'jade' },
 ];
@@ -217,7 +217,6 @@ export const PLACEHOLDER_TIPPER_APP_DISTRIBUTION: Distribution = {
   venmo: 58,
   cashapp: 22,
   paypal: 10,
-  zelle: 10,
 };
 
 // When YOU tip — patterns differ from when you receive. Morning coffee runs,
@@ -317,7 +316,7 @@ export function getEmptyTipperData() {
     sentTips: [] as SentTip[],
     achievements: PLACEHOLDER_TIPPER_ACHIEVEMENTS.map((a) => ({ ...a, unlocked: false })),
     ageBenchmark: { ...PLACEHOLDER_AGE_BENCHMARK, yourMonthly: 0, yourBin: -1, hasAge: false },
-    appDistribution: { venmo: 0, cashapp: 0, paypal: 0, zelle: 0 },
+    appDistribution: { venmo: 0, cashapp: 0, paypal: 0 },
     heatmap: Array.from({ length: 7 }, () => Array(6).fill(0)) as Heatmap,
     monthBars: Array(8).fill(0) as MiniBarSeries,
     chartSeries: [] as ChartSeries,

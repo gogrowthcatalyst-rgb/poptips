@@ -68,7 +68,7 @@ export default function RecipientThanksPage() {
                     <span>
                       Pick your handle —{' '}
                       <span className="font-mono text-ink">pop.tips/your-name</span> — add a
-                      photo, and connect Venmo, Cash App, PayPal, or Zelle.
+                      photo, and connect Venmo, Cash App, or PayPal.
                     </span>
                   </li>
                   <li className="flex gap-3">

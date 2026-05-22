@@ -66,7 +66,7 @@ export default function TermsPage() {
           <strong className="font-medium text-ink">Pop Tips is a facilitator, not a wallet.</strong>{' '}
           When you send a tip through Pop Tips, the money does not move through a Pop Tips
           bank account or balance sheet. Pop Tips deep-links your phone into a P2P payment
-          app (Venmo, Cash App, PayPal, or Zelle) with the recipient&rsquo;s handle and
+          app (Venmo, Cash App, or PayPal) with the recipient&rsquo;s handle and
           your tip amount pre-filled. You confirm the transfer inside that app. The money
           moves directly between you and the recipient.
         </p>
@@ -83,7 +83,7 @@ export default function TermsPage() {
           </li>
           <li>
             All payment processing is governed by the terms of the payment app you choose
-            (Venmo, Cash App, PayPal, or Zelle).
+            (Venmo, Cash App, or PayPal).
           </li>
           <li>
             Disputes about the underlying transfer (delayed funds, wrong amount, etc.) need
@@ -113,7 +113,7 @@ export default function TermsPage() {
           <strong className="font-medium text-ink">Worker accounts</strong> also choose a
           public handle (e.g. <span className="font-mono text-ink">pop.tips/your-name</span>),
           optionally add a profile photo, and list one or more payment-app handles
-          (Venmo / Cash App / PayPal / Zelle) for receiving tips.
+          (Venmo / Cash App / PayPal) for receiving tips.
         </p>
         <p>
           You agree to keep your account information accurate. You&rsquo;re responsible
@@ -142,8 +142,7 @@ export default function TermsPage() {
           fees — see your wallet&rsquo;s explainer page on{' '}
           <a href="/venmo" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">Venmo</a>,{' '}
           <a href="/cashapp" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">Cash App</a>,{' '}
-          <a href="/paypal" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">PayPal</a>, or{' '}
-          <a href="/zelle" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">Zelle</a>.)
+          <a href="/paypal" className="font-medium text-ink underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-gold-500 hover:decoration-gold-500">PayPal</a>.)
         </p>
         <p>
           <strong className="font-medium text-ink">Tippers</strong> get their first three
@@ -200,7 +199,7 @@ export default function TermsPage() {
           </li>
           <li>
             Receive tips for activities the underlying payment app prohibits
-            (Venmo / Cash App / PayPal / Zelle all maintain their own prohibited-use lists).
+            (Venmo / Cash App / PayPal all maintain their own prohibited-use lists).
           </li>
           <li>
             Harass, stalk, threaten, or intimidate other users.
@@ -226,7 +225,7 @@ export default function TermsPage() {
         title={<>Third-party <em className="italic text-gold-500">payment apps.</em></>}
       >
         <p>
-          Pop Tips does not operate Venmo, Cash App, PayPal, or Zelle. Each is a separate
+          Pop Tips does not operate Venmo, Cash App, or PayPal. Each is a separate
           service with its own terms, fee schedule, and limits. When you tap to send a
           tip, Pop Tips hands off to the relevant app — what happens inside that app is
           governed by their terms, not ours.
@@ -236,7 +235,7 @@ export default function TermsPage() {
         </p>
         <ul className="ml-5 list-disc space-y-2">
           <li>That a payment app will accept your specific transaction.</li>
-          <li>The speed of fund availability (Zelle is typically instant; ACH-funded transfers can take 1–3 business days).</li>
+          <li>The speed of fund availability (transfers can range from instant to 1–3 business days depending on the app and funding source).</li>
           <li>That a sent tip can be reversed, refunded, or canceled. Most P2P transfers are final.</li>
           <li>The availability of any payment app at any given time.</li>
         </ul>

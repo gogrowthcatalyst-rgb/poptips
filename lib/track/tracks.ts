@@ -63,7 +63,7 @@ const TIPPER_COPY: CopySchema = {
 const RECIPIENT_COPY: CopySchema = {
   'splash.eyebrow':       'For workers',
   'splash.headline':      'Your tips. Your account. Your rules.',
-  'splash.lede':          'No employer skim. No payout delay. Your QR points to your Venmo, Cash App, PayPal, or Zelle — your call, every time.',
+  'splash.lede':          'No employer skim. No payout delay. Your QR points to your Venmo, Cash App, or PayPal — your call, every time.',
   'splash.cta_primary':   'Claim my QR code',
   'splash.cta_secondary': 'See sample dashboard',
   'role.label':           'Recipient',

@@ -90,12 +90,6 @@ const PAYOUT_APPS = [
     blurb: 'Widest international reach.',
     badge: null,
   },
-  {
-    name: 'Zelle',
-    href: '/zelle',
-    blurb: 'Bank-to-bank. Instant. Zero fees.',
-    badge: 'No fees',
-  },
 ] as const;
 
 export default function HomePage() {
@@ -255,7 +249,7 @@ export default function HomePage() {
                   <em className="italic">They open the app they already have.</em>
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-ink-dim md:text-base">
-                  Venmo. Cash App. PayPal. Zelle. We open it pre-filled with your handle and
+                  Venmo. Cash App. PayPal. We open it pre-filled with your handle and
                   amount.
                 </p>
               </div>
@@ -414,7 +408,7 @@ export default function HomePage() {
                       Your wallet, your call.
                     </p>
                     <p className="mt-1 text-sm leading-relaxed text-ink-dim">
-                      Pick from Venmo, Cash App, PayPal, or Zelle. Switch anytime.
+                      Pick from Venmo, Cash App, or PayPal. Switch anytime.
                     </p>
                   </li>
                   <li>

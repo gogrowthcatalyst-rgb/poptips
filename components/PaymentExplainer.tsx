@@ -3,7 +3,7 @@ import { Reveal } from './Reveal';
 import { ArrowLeft } from './icons';
 
 interface PaymentExplainerProps {
-  /** Wallet name as users say it: "Venmo", "Cash App", "PayPal", "Zelle" */
+  /** Wallet name as users say it: "Venmo", "Cash App", "PayPal" */
   walletName: string;
   /** Wallet name with our accent italic applied — for the hero headline */
   walletNameAccent: React.ReactNode;
