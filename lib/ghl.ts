@@ -80,15 +80,20 @@ export async function upsertGhlContact(input: GhlContactInput): Promise<GhlResul
 
     if (!res.ok) {
       const text = await res.text().catch(() => '');
-      return { ok: false, error: `GHL ${res.status}: ${text.slice(0, 200)}` };
+      const error = `GHL ${res.status}: ${text.slice(0, 300)}`;
+      console.error(`[ghl] contact upsert failed — ${error}`);
+      return { ok: false, error };
     }
 
     const data = (await res.json().catch(() => null)) as
       | { contact?: { id?: string } }
       | null;
 
+    console.info(`[ghl] contact upsert ok — id=${data?.contact?.id ?? 'unknown'}`);
     return { ok: true, contactId: data?.contact?.id };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'GHL request failed' };
+    const error = err instanceof Error ? err.message : 'GHL request failed';
+    console.error(`[ghl] contact upsert threw — ${error}`);
+    return { ok: false, error };
   }
 }
