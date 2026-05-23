@@ -1,8 +1,8 @@
 /**
  * Database connection — Neon serverless driver + Drizzle ORM.
  *
- * Uses POSTGRES_URL (matches drizzle.config.ts and Vercel Postgres's default
- * env var). The connection is created LAZILY on first query — never at module
+ * Reads DATABASE_URL (Vercel's Neon integration default), falling back to
+ * POSTGRES_URL if present. The connection is created LAZILY on first query — never at module
  * import — so `next build` page-data collection doesn't crash when the env var
  * isn't present in the build environment. The error only surfaces if a query
  * actually runs without a configured URL, which is the correct behavior.
@@ -17,10 +17,10 @@ let _db: NeonHttpDatabase<typeof schema> | null = null;
 function getDb(): NeonHttpDatabase<typeof schema> {
   if (_db) return _db;
 
-  const connectionString = process.env.POSTGRES_URL;
+  const connectionString = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
   if (!connectionString) {
     throw new Error(
-      'POSTGRES_URL is not set. Add it in Vercel project settings (or .env.local for local dev). See .env.example.',
+      'DATABASE_URL is not set. It is injected automatically by the Vercel Neon/Postgres integration. See .env.example.',
     );
   }
 
