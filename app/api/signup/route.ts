@@ -2,18 +2,17 @@
  * POST /api/signup
  *
  * Native signup for both roles. Our DB is the source of truth; GHL is a
- * best-effort downstream push (CRM + magic-link/drip automations).
+ * best-effort downstream push that also carries the magic-link URL.
  *
  * Flow (Power of Ten aligned — validate at the boundary, check every return,
  * no fatal coupling to external services):
  *   1. Validate the payload by role.
- *   2. Recipient: verify handle (shape/reserved/unique), create the recipient
- *      with the claimed handle + a generated QR. Payment apps + photo come in
- *      the post-confirmation profile-completion step, so apps start empty and
- *      the profile shows "still setting up" until completed.
- *   3. Tipper: create the tipper with self-reported apps.
- *   4. Best-effort: upsert the GHL contact (tagged by role) so the magic-link
- *      workflow can fire. A GHL failure is logged, never fatal.
+ *   2. Create the user in our DB (recipient with claimed handle + QR, apps
+ *      empty until profile completion; or tipper with self-reported apps).
+ *   3. Issue a magic-link token, write the verify URL into the GHL contact's
+ *      magic_link_url field, and tag it so the GHL workflow sends the SMS.
+ *   4. Store the GHL contact id back on the user (best-effort).
+ * A GHL failure never blocks account creation.
  */
 
 import { NextResponse } from 'next/server';
@@ -22,7 +21,7 @@ import { eq } from 'drizzle-orm';
 import { db, recipients, tippers, PAYMENT_APPS } from '@/lib/db';
 import { createRecipient } from '@/lib/db/recipients';
 import { checkHandle } from '@/lib/reserved-handles';
-import { upsertGhlContact } from '@/lib/ghl';
+import { issueMagicLink } from '@/lib/auth/magic-link';
 
 export const runtime = 'nodejs';
 
@@ -36,18 +35,12 @@ const BaseFields = {
   }),
 };
 
-const RecipientSchema = z.object({
-  role: z.literal('recipient'),
-  handle: z.string().min(2).max(30),
-  ...BaseFields,
-});
-
+const RecipientSchema = z.object({ role: z.literal('recipient'), handle: z.string().min(2).max(30), ...BaseFields });
 const TipperSchema = z.object({
   role: z.literal('tipper'),
   usesApps: z.array(z.enum(PAYMENT_APPS)).max(3).optional().default([]),
   ...BaseFields,
 });
-
 const BodySchema = z.discriminatedUnion('role', [RecipientSchema, TipperSchema]);
 
 export async function POST(request: Request) {
@@ -82,22 +75,12 @@ export async function POST(request: Request) {
       .from(recipients)
       .where(eq(recipients.handle, handle))
       .limit(1);
-
     if (existing[0]) {
       return NextResponse.json(
         { error: 'That handle is already taken.', field: 'handle' },
         { status: 409 },
       );
     }
-
-    // GHL push first so we can store the contact id on the record (best-effort).
-    const ghl = await upsertGhlContact({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
-      tags: ['poptips-recipient', 'recipient-signup'],
-    });
 
     const recipient = await createRecipient({
       handle,
@@ -106,30 +89,38 @@ export async function POST(request: Request) {
       lastName: data.lastName,
       phone: data.phone,
       email: data.email,
-      ghlContactId: ghl.contactId ?? null,
       apps: [], // added during profile completion
     });
 
-    const origin = process.env.NEXT_PUBLIC_APP_ORIGIN ?? 'https://pop.tips';
+    const magic = await issueMagicLink({
+      userId: recipient.id,
+      role: 'recipient',
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      tag: 'recipient-signup',
+    });
+
+    if (magic.ghlContactId) {
+      await db
+        .update(recipients)
+        .set({ ghlContactId: magic.ghlContactId })
+        .where(eq(recipients.id, recipient.id));
+    }
+
+    const origin = (process.env.NEXT_PUBLIC_APP_ORIGIN ?? 'https://pop.tips').replace(/\/$/, '');
     return NextResponse.json({
       ok: true,
       role: 'recipient',
       handle: recipient.handle,
-      profileUrl: `${origin.replace(/\/$/, '')}/${recipient.handle}`,
+      profileUrl: `${origin}/${recipient.handle}`,
       qrUrl: recipient.qrUrl,
-      ghlPushed: ghl.ok,
+      ghlPushed: magic.ghlPushed,
     });
   }
 
   // Tipper
-  const ghl = await upsertGhlContact({
-    firstName: data.firstName,
-    lastName: data.lastName,
-    email: data.email,
-    phone: data.phone,
-    tags: ['poptips-tipper', 'tipper-signup'],
-  });
-
   const inserted = await db
     .insert(tippers)
     .values({
@@ -138,14 +129,24 @@ export async function POST(request: Request) {
       email: data.email,
       phone: data.phone,
       usesApps: data.usesApps,
-      ghlContactId: ghl.contactId ?? null,
     })
     .returning({ id: tippers.id });
 
-  return NextResponse.json({
-    ok: true,
+  const tipperId = inserted[0].id;
+
+  const magic = await issueMagicLink({
+    userId: tipperId,
     role: 'tipper',
-    tipperId: inserted[0].id,
-    ghlPushed: ghl.ok,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+    tag: 'tipper-signup',
   });
+
+  if (magic.ghlContactId) {
+    await db.update(tippers).set({ ghlContactId: magic.ghlContactId }).where(eq(tippers.id, tipperId));
+  }
+
+  return NextResponse.json({ ok: true, role: 'tipper', tipperId, ghlPushed: magic.ghlPushed });
 }

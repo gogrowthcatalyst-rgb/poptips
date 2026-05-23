@@ -200,6 +200,28 @@ export const tipEvents = pgTable(
   }),
 );
 
+/* ─────────────────────────── MAGIC TOKENS ────────────────────────── */
+
+/**
+ * One-time, short-lived tokens for passwordless magic-link auth.
+ * Stored in Postgres (not Redis) to keep the auth critical path on a single,
+ * already-proven datastore. Single-use: deleted on consume. TTL enforced by
+ * expiresAt (we never honor an expired row).
+ */
+export const magicTokens = pgTable(
+  'magic_tokens',
+  {
+    token: text('token').primaryKey(),
+    userId: uuid('user_id').notNull(),
+    role: text('role').notNull(), // 'recipient' | 'tipper'
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    userIdx: index('magic_tokens_user_idx').on(t.userId),
+  }),
+);
+
 /* ─────────────────────────── INFERRED TYPES ──────────────────────── */
 
 export type Recipient = typeof recipients.$inferSelect;
@@ -212,3 +234,5 @@ export type Business = typeof businesses.$inferSelect;
 export type Property = typeof properties.$inferSelect;
 export type TipEvent = typeof tipEvents.$inferSelect;
 export type NewTipEvent = typeof tipEvents.$inferInsert;
+export type MagicToken = typeof magicTokens.$inferSelect;
+export type NewMagicToken = typeof magicTokens.$inferInsert;

@@ -25,8 +25,8 @@ export interface GhlContactInput {
   phone?: string;
   /** Tags help GHL workflows decide which automation to run (e.g. magic link) */
   tags?: string[];
-  /** Arbitrary custom fields by field id; optional */
-  customFields?: { id: string; value: string }[];
+  /** Custom fields by field id OR key; optional */
+  customFields?: ({ id: string; value: string } | { key: string; value: string })[];
 }
 
 export interface GhlResult {
