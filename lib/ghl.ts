@@ -17,6 +17,7 @@
 
 const GHL_BASE = 'https://services.leadconnectorhq.com';
 const GHL_API_VERSION = '2021-07-28';
+const GHL_CONVERSATIONS_VERSION = '2021-04-15';
 
 export interface GhlContactInput {
   firstName?: string;
@@ -94,6 +95,77 @@ export async function upsertGhlContact(input: GhlContactInput): Promise<GhlResul
   } catch (err) {
     const error = err instanceof Error ? err.message : 'GHL request failed';
     console.error(`[ghl] contact upsert threw — ${error}`);
+    return { ok: false, error };
+  }
+}
+
+
+/* ─────────────────────────── SEND SMS ────────────────────────────── */
+
+export interface SendSmsResult {
+  ok: boolean;
+  skipped?: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+/**
+ * Send an SMS to a contact via GHL's Conversations API — directly, synchronously.
+ *
+ * This is the magic-link delivery path. Unlike a workflow tag-trigger (which can
+ * silently skip), this is a direct call we control and log. From-number defaults
+ * to the location's configured SMS number; set GHL_SMS_FROM to force a specific
+ * one.
+ *
+ * Best-effort return (never throws): the caller logs/inspects but a failure
+ * here should be surfaced loudly (this IS the critical message).
+ */
+export async function sendGhlSms(contactId: string, message: string): Promise<SendSmsResult> {
+  const creds = getCreds();
+  if (!creds) {
+    console.warn('[ghl] GHL_API_KEY / GHL_LOCATION_ID not set — skipping SMS send.');
+    return { ok: false, skipped: true };
+  }
+  if (!contactId) {
+    console.error('[ghl] sendGhlSms called without a contactId — skipping.');
+    return { ok: false, error: 'missing contactId' };
+  }
+
+  const body: Record<string, unknown> = {
+    type: 'SMS',
+    contactId,
+    message,
+  };
+  const fromNumber = process.env.GHL_SMS_FROM;
+  if (fromNumber) body.fromNumber = fromNumber;
+
+  try {
+    const res = await fetch(`${GHL_BASE}/conversations/messages`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${creds.apiKey}`,
+        Version: GHL_CONVERSATIONS_VERSION,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      const error = `GHL SMS ${res.status}: ${text.slice(0, 300)}`;
+      console.error(`[ghl] sms send failed — ${error}`);
+      return { ok: false, error };
+    }
+
+    const data = (await res.json().catch(() => null)) as
+      | { messageId?: string; msg?: string }
+      | null;
+    console.info(`[ghl] sms sent ok — contact=${contactId} messageId=${data?.messageId ?? 'unknown'}`);
+    return { ok: true, messageId: data?.messageId };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : 'GHL SMS request failed';
+    console.error(`[ghl] sms send threw — ${error}`);
     return { ok: false, error };
   }
 }

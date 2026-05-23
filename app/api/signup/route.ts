@@ -22,6 +22,7 @@ import { db, recipients, tippers, PAYMENT_APPS } from '@/lib/db';
 import { createRecipient } from '@/lib/db/recipients';
 import { checkHandle } from '@/lib/reserved-handles';
 import { issueMagicLink } from '@/lib/auth/magic-link';
+import { toE164 } from '@/lib/phone';
 
 export const runtime = 'nodejs';
 
@@ -62,6 +63,15 @@ export async function POST(request: Request) {
   const data = parsed.data;
   const displayName = `${data.firstName} ${data.lastName}`.trim();
 
+  // Normalize phone to E.164 at the boundary — carriers/GHL route on it.
+  const phoneE164 = toE164(data.phone);
+  if (!phoneE164) {
+    return NextResponse.json(
+      { error: 'Enter a valid phone number (e.g. (831) 555-0147).', field: 'phone' },
+      { status: 422 },
+    );
+  }
+
   if (data.role === 'recipient') {
     const handle = data.handle.toLowerCase();
 
@@ -87,7 +97,7 @@ export async function POST(request: Request) {
       displayName,
       firstName: data.firstName,
       lastName: data.lastName,
-      phone: data.phone,
+      phone: phoneE164,
       email: data.email,
       apps: [], // added during profile completion
     });
@@ -98,8 +108,9 @@ export async function POST(request: Request) {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      phone: data.phone,
+      phone: phoneE164,
       tag: 'recipient-signup',
+      kind: 'signup',
     });
 
     if (magic.ghlContactId) {
@@ -127,7 +138,7 @@ export async function POST(request: Request) {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      phone: data.phone,
+      phone: phoneE164,
       usesApps: data.usesApps,
     })
     .returning({ id: tippers.id });
@@ -140,8 +151,9 @@ export async function POST(request: Request) {
     firstName: data.firstName,
     lastName: data.lastName,
     email: data.email,
-    phone: data.phone,
+    phone: phoneE164,
     tag: 'tipper-signup',
+    kind: 'signup',
   });
 
   if (magic.ghlContactId) {

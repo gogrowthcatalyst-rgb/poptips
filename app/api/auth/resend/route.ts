@@ -50,6 +50,7 @@ export async function POST(request: Request) {
       email,
       phone: rec[0].phone ?? undefined,
       tag: 'magic-link-resend',
+      kind: 'resend',
     });
     return NextResponse.json({ ok: true });
   }
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
       email,
       phone: tip[0].phone ?? undefined,
       tag: 'magic-link-resend',
+      kind: 'resend',
     });
   }
 
