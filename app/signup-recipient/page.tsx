@@ -1,5 +1,5 @@
 import { TrackForcer } from '@/components/TrackForcer';
-import { GHLFormEmbed } from '@/components/GHLFormEmbed';
+import { SignupForm } from '@/components/SignupForm';
 
 export const metadata = {
   title: 'Claim your QR code',
@@ -111,25 +111,13 @@ export default function SignupRecipientPage() {
             We&rsquo;ll text you a magic link — no password, no resume.
           </p>
 
-          {/* Handle preview — sets the expectation */}
-          <p className="mt-6 inline-flex items-baseline gap-1 rounded-xl bg-paper px-4 py-3 font-mono text-sm text-ink-faint">
-            <span>pop.tips/</span>
-            <span className="text-accent transition-colors duration-200">your-handle</span>
-          </p>
-
-          {/* GHL form — built and styled in GHL, embedded via iframe.
-              After submit, GHL will (in Session 3+) redirect to our custom
-              profile-completion step at /signup-recipient/profile?gid=... */}
-          <div className="mt-6 overflow-hidden rounded-2xl bg-paper">
-            <GHLFormEmbed
-              formId="R5q096IomipgDdaZz6Av"
-              formName="Recipient Sign Up Form"
-              role="recipient"
-            />
+          {/* Native signup form — writes to our DB, pushes to GHL. */}
+          <div className="mt-8">
+            <SignupForm role="recipient" />
           </div>
 
           <p className="mt-6 text-center text-xs font-mono uppercase tracking-wider2 text-ink-faint">
-            Next: pick your handle and add your photo.
+            Next: confirm by text, then add your apps and photo.
           </p>
         </section>
 

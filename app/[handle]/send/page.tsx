@@ -38,6 +38,10 @@ export default async function SendPage({ params }: { params: Promise<Params> }) 
     appHandle: a.appHandle,
   }));
 
+  // Defensive: a recipient with no connected apps cannot receive a tip.
+  // Never render a dead send form — show an honest setup-incomplete state.
+  const hasApps = apps.length > 0;
+
   return (
     <>
       <TrackForcer track="tipper" />
@@ -80,13 +84,27 @@ export default async function SendPage({ params }: { params: Promise<Params> }) 
           </div>
         </header>
 
-        <SendForm handle={recipient.handle} displayName={displayName} apps={apps} />
+        {hasApps ? (
+          <>
+            <SendForm handle={recipient.handle} displayName={displayName} apps={apps} />
 
-        {/* Trust */}
-        <p className="mt-10 text-center text-sm leading-relaxed text-ink-faint md:text-base">
-          We open your chosen app pre-filled with your amount. You confirm in
-          the app. <span className="text-ink-dim">Pop Tips never sees the money.</span>
-        </p>
+            {/* Trust */}
+            <p className="mt-10 text-center text-sm leading-relaxed text-ink-faint md:text-base">
+              We open your chosen app pre-filled with your amount. You confirm in
+              the app. <span className="text-ink-dim">Pop Tips never sees the money.</span>
+            </p>
+          </>
+        ) : (
+          <section className="rounded-3xl border border-line bg-surface p-8 text-center shadow-lift">
+            <p className="font-display text-xl font-medium italic text-ink md:text-2xl">
+              {displayName} is still setting up.
+            </p>
+            <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-ink-dim">
+              No payment apps are connected yet, so tips can&rsquo;t be sent right
+              now. Check back soon.
+            </p>
+          </section>
+        )}
       </main>
     </>
   );

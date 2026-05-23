@@ -49,6 +49,10 @@ export async function getRecipientByHandle(
 export interface CreateRecipientInput {
   handle: string;
   displayName: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  email?: string | null;
   role?: string | null;
   message?: string | null;
   photoUrl?: string | null;
@@ -115,6 +119,10 @@ export async function createRecipient(
     .values({
       handle,
       displayName: input.displayName,
+      firstName: input.firstName ?? null,
+      lastName: input.lastName ?? null,
+      phone: input.phone ?? null,
+      email: input.email ?? null,
       role: input.role ?? null,
       message: input.message ?? null,
       photoUrl: input.photoUrl ?? null,

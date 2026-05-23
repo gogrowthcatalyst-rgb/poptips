@@ -7,6 +7,27 @@ import { buildDeepLink } from '@/lib/deep-links';
 import { PAYMENT_APP_META } from '@/lib/payment-apps';
 import type { PaymentApp } from '@/lib/payment-apps';
 
+/**
+ * Send flow — bulletproofed (Power of Ten aligned).
+ *
+ * Design contract: a tipper must ALWAYS be able to complete a tip, even if
+ * the deep link does nothing (app not installed, OS won't hand off, etc.).
+ * So selecting an app reveals BOTH:
+ *   1. a one-tap deep link (best case — opens the app pre-filled), and
+ *   2. an always-visible manual fallback: the exact handle + amount + copy
+ *      buttons, with plain instructions.
+ * There is no code path that leaves the user on a dead end.
+ *
+ * Rule notes:
+ *  - Simple control flow, no recursion, bounded iteration over a fixed
+ *    1–3 element app list.
+ *  - Inputs validated at the boundary: amount must be a finite number > 0;
+ *    a deep link is only offered when buildDeepLink returns non-null.
+ *  - Every async return value (clipboard) is checked / caught.
+ *  - No undefined UI states: no amount -> apps disabled; no selection ->
+ *    no confirm panel; empty handle -> manual-only (no broken link).
+ */
+
 interface RecipientApp {
   app: PaymentApp;
   appHandle: string;
@@ -15,24 +36,23 @@ interface RecipientApp {
 interface Props {
   handle: string;
   displayName: string;
-  /** The recipient's connected payment apps, in display order */
   apps: RecipientApp[];
 }
 
 const PRESETS = [5, 10, 20, 50] as const;
+const MAX_TIP = 100_000; // sanity ceiling, matches API validation
 
-/**
- * The send-page form. Owns amount + app picker state. On app tap:
- *   1. Logs the tip event to /api/tips (status 'initiated') — fire and forget
- *   2. Fires the tip_app_opened analytics event
- *   3. Deep-links into the chosen payment app with handle + amount prefilled
- *
- * Pop Tips never touches the money — the customer confirms inside their app.
- */
-export function SendForm({ handle, apps }: Props) {
+/** Format a dollar amount for display. 20 -> "20", 12.5 -> "12.50". */
+function formatAmount(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+export function SendForm({ handle, displayName, apps }: Props) {
   const [amount, setAmount] = useState<number | null>(20);
   const [customRaw, setCustomRaw] = useState<string>('');
   const [usingCustom, setUsingCustom] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<PaymentApp | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
   const pickPreset = (n: number) => {
     setAmount(n);
@@ -46,7 +66,7 @@ export function SendForm({ handle, apps }: Props) {
     setCustomRaw(raw);
     const cleaned = raw.replace(/[^0-9.]/g, '');
     const n = parseFloat(cleaned);
-    if (!Number.isNaN(n) && n > 0) {
+    if (!Number.isNaN(n) && n > 0 && n <= MAX_TIP) {
       setAmount(n);
       track('tip_amount_selected', { handle, amount: n, method: 'custom' });
     } else {
@@ -54,15 +74,16 @@ export function SendForm({ handle, apps }: Props) {
     }
   };
 
-  const openApp = (appHandle: string, appId: PaymentApp) => {
+  const selectApp = (appId: PaymentApp) => {
     if (amount === null) return;
+    setSelectedApp(appId);
+    setCopied(null);
+  };
 
-    const url = buildDeepLink({ app: appId, appHandle, amount });
-    if (!url) return;
-
+  /** Log the tip the moment the user commits to opening an app. */
+  const logTip = (appId: PaymentApp) => {
+    if (amount === null) return;
     track('tip_app_opened', { handle, app: appId, amount });
-
-    // Log the tip event — fire and forget; never block the handoff.
     const amountCents = Math.round(amount * 100);
     void fetch('/api/tips', {
       method: 'POST',
@@ -70,12 +91,27 @@ export function SendForm({ handle, apps }: Props) {
       body: JSON.stringify({ handle, app: appId, amountCents }),
       keepalive: true,
     }).catch(() => {
-      /* non-fatal — the tip still opens */
+      /* non-fatal — manual fallback still lets the tip complete */
     });
-
-    // Hand off to the payment app.
-    window.location.href = url;
   };
+
+  const copyText = async (label: string, value: string) => {
+    let ok = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        ok = true;
+      }
+    } catch {
+      ok = false;
+    }
+    setCopied(ok ? label : null);
+    if (ok) window.setTimeout(() => setCopied((c) => (c === label ? null : c)), 1800);
+  };
+
+  const selectedRecipientApp = selectedApp
+    ? apps.find((a) => a.app === selectedApp) ?? null
+    : null;
 
   return (
     <>
@@ -111,7 +147,6 @@ export function SendForm({ handle, apps }: Props) {
           })}
         </div>
 
-        {/* Custom amount */}
         <label className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-line bg-paper px-5 py-4 transition-colors focus-within:border-accent">
           <span className="font-mono text-sm text-ink-faint">Or custom:</span>
           <span className="money text-lg font-medium text-ink-dim">$</span>
@@ -126,7 +161,7 @@ export function SendForm({ handle, apps }: Props) {
         </label>
       </section>
 
-      {/* APP ======================================================== */}
+      {/* APP PICKER ================================================= */}
       <section
         aria-labelledby="app-heading"
         className="mt-6 rounded-3xl border border-line bg-surface p-6 shadow-lift md:mt-8 md:p-8"
@@ -135,21 +170,24 @@ export function SendForm({ handle, apps }: Props) {
           id="app-heading"
           className="font-mono text-xs font-medium uppercase tracking-wider2 text-ink-faint"
         >
-          Send via
+          Choose an app
         </h2>
-        <p className="mt-1 text-xs text-ink-faint">
-          We open the app pre-filled with your amount. You confirm and send.
-        </p>
         <ul className="mt-5 grid gap-3 md:grid-cols-2">
           {apps.map((opt) => {
             const meta = PAYMENT_APP_META[opt.app];
+            const active = selectedApp === opt.app;
             return (
               <li key={opt.app}>
                 <button
                   type="button"
-                  onClick={() => openApp(opt.appHandle, opt.app)}
+                  onClick={() => selectApp(opt.app)}
                   disabled={amount === null}
-                  className="flex w-full cursor-pointer items-center justify-between rounded-2xl border-2 border-line bg-paper px-6 py-5 text-left transition-all duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-accent hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-glow active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                  className={cn(
+                    'flex w-full cursor-pointer items-center justify-between rounded-2xl border-2 px-6 py-5 text-left transition-all duration-200 ease-out-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-glow active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50',
+                    active
+                      ? 'border-accent bg-accent-glow/20 shadow-lift'
+                      : 'border-line bg-paper hover:-translate-y-0.5 hover:border-accent hover:shadow-lift',
+                  )}
                 >
                   <span className="font-display text-xl font-medium text-ink md:text-2xl">
                     {meta.label}
@@ -165,6 +203,117 @@ export function SendForm({ handle, apps }: Props) {
           })}
         </ul>
       </section>
+
+      {/* CONFIRM + GUARANTEED FALLBACK ============================== */}
+      {selectedRecipientApp && amount !== null && (
+        <ConfirmPanel
+          appId={selectedRecipientApp.app}
+          appHandle={selectedRecipientApp.appHandle}
+          amount={amount}
+          displayName={displayName}
+          copied={copied}
+          onOpen={() => logTip(selectedRecipientApp.app)}
+          onCopy={copyText}
+        />
+      )}
     </>
+  );
+}
+
+/* ─────────────────────────── CONFIRM PANEL ───────────────────────── */
+
+function ConfirmPanel({
+  appId,
+  appHandle,
+  amount,
+  displayName,
+  copied,
+  onOpen,
+  onCopy,
+}: {
+  appId: PaymentApp;
+  appHandle: string;
+  amount: number;
+  displayName: string;
+  copied: string | null;
+  onOpen: () => void;
+  onCopy: (label: string, value: string) => void;
+}) {
+  const meta = PAYMENT_APP_META[appId];
+  const amountStr = formatAmount(amount);
+  const deepLink = buildDeepLink({ app: appId, appHandle, amount });
+  const prefixed = `${meta.handlePrefix}${appHandle}`;
+
+  return (
+    <section
+      aria-label={`Send ${meta.label}`}
+      className="mt-6 rounded-3xl border-2 border-accent bg-surface p-6 shadow-lift md:p-8"
+    >
+      {/* Primary: one-tap deep link (best case) */}
+      {deepLink ? (
+        <a
+          href={deepLink}
+          onClick={onOpen}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-6 py-5 text-center font-display text-xl font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-accent-dim active:scale-[0.98] md:text-2xl"
+        >
+          Open {meta.label} to send{' '}
+          <span className="money font-semibold">${amountStr}</span>
+        </a>
+      ) : null}
+
+      {/* Guaranteed manual fallback — ALWAYS shown, never a dead end. */}
+      <div className="mt-5">
+        <p className="text-center font-mono text-[11px] font-medium uppercase tracking-wider2 text-ink-faint">
+          {deepLink ? "Didn't open? Send it yourself" : `Send in ${meta.label}`}
+        </p>
+
+        <div className="mt-3 space-y-2">
+          {/* Handle row */}
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-4 py-3">
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-wider2 text-ink-faint">
+                {meta.label} handle
+              </p>
+              <p className="truncate font-mono text-base font-medium text-ink">
+                {prefixed}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onCopy('handle', appHandle)}
+              className="shrink-0 rounded-full border border-line bg-surface px-4 py-2 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-dim transition-colors hover:border-accent hover:text-accent"
+            >
+              {copied === 'handle' ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+
+          {/* Amount row */}
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-4 py-3">
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-wider2 text-ink-faint">
+                Amount
+              </p>
+              <p className="money truncate text-base font-semibold text-ink">
+                ${amountStr}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onCopy('amount', amountStr)}
+              className="shrink-0 rounded-full border border-line bg-surface px-4 py-2 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-dim transition-colors hover:border-accent hover:text-accent"
+            >
+              {copied === 'amount' ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        </div>
+
+        <p className="mt-4 text-center text-sm leading-relaxed text-ink-faint">
+          Open {meta.label}, search{' '}
+          <span className="font-mono text-ink-dim">{prefixed}</span>, and send{' '}
+          <span className="money font-semibold text-ink-dim">${amountStr}</span> to{' '}
+          {displayName}.
+        </p>
+      </div>
+    </section>
   );
 }

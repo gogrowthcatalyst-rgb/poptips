@@ -34,6 +34,7 @@ export default async function ProfilePage({ params }: { params: Promise<Params> 
   const { displayName, role, message, photoUrl, paymentApps } = recipient;
   const initial = displayName.charAt(0);
   const payBadges = paymentApps.map((a) => paymentAppLabel(a.app));
+  const canReceive = paymentApps.length > 0;
 
   return (
     <>
@@ -103,17 +104,25 @@ export default async function ProfilePage({ params }: { params: Promise<Params> 
         )}
 
         {/* PRIMARY CTA — to the send page ================================= */}
-        <section className="mt-12 flex justify-center md:mt-14">
-          <Link
-            href={`/${recipient.handle}/send`}
-            className="group inline-flex items-center gap-3 rounded-full bg-accent px-10 py-5 font-display text-xl font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-accent-dim hover:shadow-lift-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-glow md:text-2xl"
-          >
-            <span>Send a tip</span>
-            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">
-              &rarr;
-            </span>
-          </Link>
-        </section>
+        {canReceive ? (
+          <section className="mt-12 flex justify-center md:mt-14">
+            <Link
+              href={`/${recipient.handle}/send`}
+              className="group inline-flex items-center gap-3 rounded-full bg-accent px-10 py-5 font-display text-xl font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-accent-dim hover:shadow-lift-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-glow md:text-2xl"
+            >
+              <span>Send a tip</span>
+              <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">
+                &rarr;
+              </span>
+            </Link>
+          </section>
+        ) : (
+          <section className="mt-12 md:mt-14">
+            <p className="mx-auto max-w-sm rounded-2xl border border-line-soft bg-surface px-6 py-5 text-center text-base leading-relaxed text-ink-dim">
+              {displayName} is still finishing setup — tips aren&rsquo;t open yet.
+            </p>
+          </section>
+        )}
 
         {/* PAYMENT APPS — informational =================================== */}
         {payBadges.length > 0 && (

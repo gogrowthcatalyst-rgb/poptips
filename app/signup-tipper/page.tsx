@@ -1,5 +1,5 @@
 import { TrackForcer } from '@/components/TrackForcer';
-import { GHLFormEmbed } from '@/components/GHLFormEmbed';
+import { SignupForm } from '@/components/SignupForm';
 
 export const metadata = {
   title: 'Get set up to tip',
@@ -109,13 +109,9 @@ export default function SignupTipperPage() {
             We&rsquo;ll text you a magic link to confirm — no password to remember.
           </p>
 
-          {/* GHL form — built and styled in GHL, embedded via iframe */}
-          <div className="mt-8 overflow-hidden rounded-2xl bg-paper">
-            <GHLFormEmbed
-              formId="B4dOzpxXuZD4x3KYKO37"
-              formName="Tipper Sign Up Form"
-              role="tipper"
-            />
+          {/* Native signup form — writes to our DB, pushes to GHL. */}
+          <div className="mt-8">
+            <SignupForm role="tipper" />
           </div>
         </section>
 

@@ -83,6 +83,10 @@ export const recipients = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     handle: text('handle').notNull(),
     displayName: text('display_name').notNull(),
+    firstName: text('first_name'),
+    lastName: text('last_name'),
+    phone: text('phone'),
+    email: text('email'),
     role: text('role'),
     photoUrl: text('photo_url'),
     message: text('message'),
@@ -136,9 +140,13 @@ export const tippers = pgTable(
   'tippers',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    firstName: text('first_name'),
+    lastName: text('last_name'),
     email: text('email'),
     phone: text('phone'),
     ghlContactId: text('ghl_contact_id'),
+    /** Self-reported apps the tipper already uses — drives the multi-rail nudge */
+    usesApps: text('uses_apps').array(),
 
     // Acquisition tracking — drives the first-year fee waiver when a tipper
     // signs up through a business's property QR (pop.tips/join/{slug}).
