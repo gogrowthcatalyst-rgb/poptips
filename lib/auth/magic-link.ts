@@ -24,6 +24,12 @@ export interface IssueMagicLinkInput {
   lastName?: string;
   email?: string;
   phone?: string;
+  /** Home ZIP — synced to GHL for segmentation (optional). */
+  homeZip?: string;
+  /** Industry as a human label (resolved from the slug) — for the CRM. */
+  primaryIndustryLabel?: string;
+  /** Recipient workplace name — for CRM/segmentation (optional). */
+  workplaceName?: string;
   /** Tag applied for CRM/segmentation (not used for delivery anymore). */
   tag: string;
   kind: MagicLinkKind;
@@ -52,14 +58,24 @@ export async function issueMagicLink(input: IssueMagicLinkInput): Promise<IssueM
   const token = await createMagicToken(input.userId, input.role);
   const url = `${appOrigin()}/auth/verify?token=${token}`;
 
-  // Upsert the contact (tags + magic_link_url field) — gives us the contactId.
+  // Build the custom-field set. magic_link_url always; the signup analytics
+  // fields only when present. These keys must exist as GHL custom fields or
+  // GHL ignores them — the push is best-effort and never blocks signup.
+  const customFields: { key: string; value: string }[] = [{ key: 'magic_link_url', value: url }];
+  if (input.homeZip) customFields.push({ key: 'home_zip', value: input.homeZip });
+  if (input.primaryIndustryLabel) {
+    customFields.push({ key: 'primary_industry', value: input.primaryIndustryLabel });
+  }
+  if (input.workplaceName) customFields.push({ key: 'workplace_name', value: input.workplaceName });
+
+  // Upsert the contact (tags + fields) — gives us the contactId.
   const ghl = await upsertGhlContact({
     firstName: input.firstName,
     lastName: input.lastName,
     email: input.email,
     phone: input.phone,
     tags: [`poptips-${input.role}`, input.tag],
-    customFields: [{ key: 'magic_link_url', value: url }],
+    customFields,
   });
 
   // Send the magic link directly. This is the delivery path now.
