@@ -5,10 +5,23 @@
  * own payment app with the recipient and amount pre-filled. The customer
  * confirms inside their app. Pop Tips never touches the money.
  *
- * We use each provider's documented WEB-INTENT URL (https://), not the raw
- * app-scheme (venmo://). Web-intent links are more reliable: they open the
- * native app when installed and fall back to the web flow when not, and they
- * don't trigger the "open in app?" browser warnings that bare schemes do.
+ * Per-app link strategy (they are NOT the same — Venmo is the odd one out):
+ *
+ *  - Venmo: the app-scheme `venmo://paycharge?txn=pay&recipients=...`. This is
+ *    the format Venmo's own QR codes and sample app emit, and it is the only
+ *    one that reliably PRE-FILLS the recipient on Android. The web-intent form
+ *    (https://venmo.com/?txn=pay&recipients=...) looks tidier and dodges the
+ *    "open in app?" prompt, but Android does NOT carry the `recipients` query
+ *    param into the app from it — you land on a blank "enter username" pay
+ *    screen. We accept the tiny app-open prompt to keep the recipient
+ *    pre-filled. If Venmo isn't installed the scheme is a no-op, and the
+ *    send page's always-visible manual fallback (copy handle + amount) covers
+ *    that case — no dead end.
+ *
+ *  - Cash App / PayPal: documented https path links where the handle lives in
+ *    the PATH (cash.app/$tag/amt, paypal.me/handle/amt). Because the handle is
+ *    in the path (not a query param) these open the native app pre-filled and
+ *    fall back to web cleanly, so they keep the https form.
  *
  * Handle normalization strips any prefix the worker may have typed
  * (@, $, paypal.me/) so we store and build links from the bare handle.
@@ -63,17 +76,13 @@ export function buildDeepLink({ app, appHandle, amount, note }: DeepLinkParams):
 
   switch (app) {
     case 'venmo': {
-      // Venmo's documented web-intent: the recipient goes in the `recipients`
-      // QUERY param, NOT the path. The path form (venmo.com/USERNAME) opens
-      // the app but doesn't reliably target the person — on Android it lands
-      // on the generic recent-payments list. `recipients=` is Venmo's own
-      // documented format and pre-fills the pay screen to that user.
-      //   https://venmo.com/?txn=pay&recipients=USERNAME&amount=AMT&note=NOTE
+      // App-scheme that actually targets the recipient on iOS AND Android.
+      //   venmo://paycharge?txn=pay&recipients=USERNAME&amount=AMT&note=NOTE
       // (recipients may be a username, phone, or email.)
       const params = new URLSearchParams({ txn: 'pay', recipients: handle });
       if (amt) params.set('amount', amt);
       if (note) params.set('note', note);
-      return `https://venmo.com/?${params.toString()}`;
+      return `venmo://paycharge?${params.toString()}`;
     }
 
     case 'cashapp': {
