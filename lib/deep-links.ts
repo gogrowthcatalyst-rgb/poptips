@@ -2,21 +2,21 @@
  * Deep links — the architectural heart of Pop Tips.
  *
  * Each builder constructs a URL that, tapped on a phone, opens the user's
- * own payment app with the recipient and amount pre-filled. The customer
- * confirms inside their app. Pop Tips never touches the money.
+ * own payment app targeted at the recipient. Cash App and PayPal pre-fill the
+ * amount too; Venmo only targets the person (see below). The customer confirms
+ * inside their app. Pop Tips never touches the money.
  *
  * Per-app link strategy (they are NOT the same — Venmo is the odd one out):
  *
- *  - Venmo: the app-scheme `venmo://paycharge?txn=pay&recipients=...`. This is
- *    the format Venmo's own QR codes and sample app emit, and it is the only
- *    one that reliably PRE-FILLS the recipient on Android. The web-intent form
- *    (https://venmo.com/?txn=pay&recipients=...) looks tidier and dodges the
- *    "open in app?" prompt, but Android does NOT carry the `recipients` query
- *    param into the app from it — you land on a blank "enter username" pay
- *    screen. We accept the tiny app-open prompt to keep the recipient
- *    pre-filled. If Venmo isn't installed the scheme is a no-op, and the
- *    send page's always-visible manual fallback (copy handle + amount) covers
- *    that case — no dead end.
+ *  - Venmo: the web profile link `https://venmo.com/u/USERNAME`. We tried the
+ *    documented app-schemes (venmo://paycharge?recipients= and venmo://users/)
+ *    and verified empirically that Venmo IGNORES an externally-tapped payment
+ *    target (an anti-phishing measure) and dumps the tipper on a generic pay
+ *    screen. The web profile link is the only thing that reliably lands them on
+ *    the CORRECT person's pay screen, and it degrades gracefully to a web page
+ *    if the app isn't installed (no dead-end). Tradeoff: Venmo can't pre-fill
+ *    the amount this way, so the send page shows the amount prominently for the
+ *    tipper to type. Username is case-insensitive; only hyphenation must match.
  *
  *  - Cash App / PayPal: documented https path links where the handle lives in
  *    the PATH (cash.app/$tag/amt, paypal.me/handle/amt). Because the handle is
@@ -76,13 +76,20 @@ export function buildDeepLink({ app, appHandle, amount, note }: DeepLinkParams):
 
   switch (app) {
     case 'venmo': {
-      // App-scheme that actually targets the recipient on iOS AND Android.
-      //   venmo://paycharge?txn=pay&recipients=USERNAME&amount=AMT&note=NOTE
-      // (recipients may be a username, phone, or email.)
-      const params = new URLSearchParams({ txn: 'pay', recipients: handle });
-      if (amt) params.set('amount', amt);
-      if (note) params.set('note', note);
-      return `venmo://paycharge?${params.toString()}`;
+      // Venmo deliberately ignores a pre-filled payment target handed to it
+      // from a third-party tap (anti-phishing), so venmo://paycharge?recipients=
+      // and venmo://users/ both dump the tipper on a generic pay screen — we
+      // verified this empirically across casings/hyphenation. The ONE thing
+      // that reliably lands them on the correct person's pay screen is Venmo's
+      // own web profile link, which also degrades gracefully (a web page, not
+      // an "address is invalid" dead-end) when the app isn't installed.
+      //
+      // Tradeoff we accept: Venmo can't pre-fill the AMOUNT this way. The send
+      // page shows the amount prominently so the tipper types it. Cash App and
+      // PayPal still pre-fill amount because their handle+amount live in the URL
+      // path, which those apps honor. Username is case-insensitive here; only
+      // the hyphenation must match the real Venmo username.
+      return `https://venmo.com/u/${encodeURIComponent(handle)}`;
     }
 
     case 'cashapp': {
