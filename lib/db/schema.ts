@@ -87,7 +87,13 @@ export const recipients = pgTable(
     lastName: text('last_name'),
     phone: text('phone'),
     email: text('email'),
+    /** Home ZIP — regional analytics (required at signup; nullable for seed). */
+    homeZip: text('home_zip'),
     role: text('role'),
+    /** Shared industry slug (see lib/industries.ts) — the analytics axis. */
+    primaryIndustry: text('primary_industry'),
+    /** Free-text when primaryIndustry === 'other'. */
+    industryOther: text('industry_other'),
     termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
     /** If set and in the past with no photoUrl, the recipient is un-tippable
      *  until they add a photo. Set at go-live when no photo (48h window). */
@@ -96,7 +102,8 @@ export const recipients = pgTable(
     message: text('message'),
 
     // Workplace affiliation — required at signup (identity verification +
-    // workplace mapping). Nullable here because seed/admin paths may omit.
+    // workplace mapping). Name captured at signup; address/phone editable
+    // later. Nullable here because seed/admin paths may omit.
     workplaceName: text('workplace_name'),
     workplaceAddress: text('workplace_address'),
     workplacePhone: text('workplace_phone'),
@@ -148,6 +155,12 @@ export const tippers = pgTable(
     lastName: text('last_name'),
     email: text('email'),
     phone: text('phone'),
+    /** Home ZIP — regional analytics (required at signup; nullable for seed). */
+    homeZip: text('home_zip'),
+    /** Shared industry slug (see lib/industries.ts) — "what they tip most". */
+    primaryIndustry: text('primary_industry'),
+    /** Free-text when primaryIndustry === 'other'. */
+    industryOther: text('industry_other'),
     ghlContactId: text('ghl_contact_id'),
     /** Self-reported apps the tipper already uses — drives the multi-rail nudge */
     usesApps: text('uses_apps').array(),
