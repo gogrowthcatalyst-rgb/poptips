@@ -7,6 +7,7 @@ import { Logo } from '@/components/Logo';
 import { isReservedHandle } from '@/lib/reserved-handles';
 import { getRecipientByHandle } from '@/lib/db/recipients';
 import { paymentAppLabel } from '@/lib/payment-apps';
+import { computeTippableStatus } from '@/lib/recipient-status';
 
 interface Params {
   handle: string;
@@ -34,7 +35,12 @@ export default async function ProfilePage({ params }: { params: Promise<Params> 
   const { displayName, role, message, photoUrl, paymentApps } = recipient;
   const initial = displayName.charAt(0);
   const payBadges = paymentApps.map((a) => paymentAppLabel(a.app));
-  const canReceive = paymentApps.length > 0;
+  const canReceive =
+    computeTippableStatus({
+      paymentAppCount: paymentApps.length,
+      photoUrl,
+      photoRequiredBy: recipient.photoRequiredBy,
+    }) === 'live';
 
   return (
     <>

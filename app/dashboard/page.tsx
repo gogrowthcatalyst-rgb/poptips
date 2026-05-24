@@ -21,6 +21,7 @@ import {
   RecentTips,
 } from '@/components/dashboard/Engagement';
 import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist';
+import { PhotoComplianceBanner } from '@/components/dashboard/PhotoComplianceBanner';
 
 function DashboardInner() {
   const searchParams = useSearchParams();
@@ -46,6 +47,9 @@ function DashboardInner() {
 
   return (
     <main className="mx-auto max-w-[1400px] px-5 pb-20 pt-10 md:px-8 md:pt-12">
+      {/* PHOTO COMPLIANCE (self-fetching; renders nothing when compliant) */}
+      <PhotoComplianceBanner />
+
       {/* WELCOME ============================================ */}
       <Reveal>
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">

@@ -14,8 +14,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { consumeMagicToken } from '@/lib/auth/tokens';
-import { eq } from 'drizzle-orm';
-import { db, recipients } from '@/lib/db';
+import { getRecipientById } from '@/lib/db/recipients';
 import {
   createSessionValue,
   SESSION_COOKIE,
@@ -37,15 +36,14 @@ export async function GET(request: Request) {
     return redirectTo(request, '/auth/expired');
   }
 
-  // For recipients, attach the handle to the session for convenience.
+  // For recipients, attach the handle to the session and decide where to land:
+  // a recipient with no payment apps still needs to complete their profile.
   let handle: string | undefined;
+  let recipientNeedsOnboarding = false;
   if (consumed.role === 'recipient') {
-    const rows = await db
-      .select({ handle: recipients.handle })
-      .from(recipients)
-      .where(eq(recipients.id, consumed.userId))
-      .limit(1);
-    handle = rows[0]?.handle;
+    const recipient = await getRecipientById(consumed.userId);
+    handle = recipient?.handle;
+    recipientNeedsOnboarding = !recipient || recipient.paymentApps.length === 0;
   }
 
   const sessionValue = createSessionValue({
@@ -60,7 +58,12 @@ export async function GET(request: Request) {
     return redirectTo(request, '/auth/expired');
   }
 
-  const dest = consumed.role === 'tipper' ? '/dashboard/tipper' : '/dashboard';
+  const dest =
+    consumed.role === 'tipper'
+      ? '/dashboard/tipper'
+      : recipientNeedsOnboarding
+        ? '/onboarding'
+        : '/dashboard';
   const res = redirectTo(request, dest);
 
   const store = await cookies();

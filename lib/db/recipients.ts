@@ -60,6 +60,7 @@ export interface CreateRecipientInput {
   workplaceAddress?: string | null;
   workplacePhone?: string | null;
   ghlContactId?: string | null;
+  termsAcceptedAt?: Date | null;
   apps: { app: PaymentApp; appHandle: string; isPrimary?: boolean }[];
 }
 
@@ -124,6 +125,7 @@ export async function createRecipient(
       phone: input.phone ?? null,
       email: input.email ?? null,
       role: input.role ?? null,
+      termsAcceptedAt: input.termsAcceptedAt ?? null,
       message: input.message ?? null,
       photoUrl: input.photoUrl ?? null,
       workplaceName: input.workplaceName ?? null,
@@ -149,4 +151,62 @@ export async function createRecipient(
   }
 
   return recipient;
+}
+
+
+export interface UpdateRecipientProfileInput {
+  recipientId: string;
+  role?: string | null;
+  message?: string | null;
+  photoUrl?: string | null;
+  photoRequiredBy?: Date | null;
+  apps: { app: PaymentApp; appHandle: string; isPrimary?: boolean }[];
+}
+
+/**
+ * Complete / update a recipient's profile: replaces their payment apps and
+ * updates role/message/photo. Used by the post-signup profile-completion step.
+ * Replacing apps (delete-then-insert) keeps the set authoritative and simple.
+ */
+export async function updateRecipientProfile(
+  input: UpdateRecipientProfileInput,
+): Promise<void> {
+  await db
+    .update(recipients)
+    .set({
+      role: input.role ?? null,
+      message: input.message ?? null,
+      ...(input.photoUrl ? { photoUrl: input.photoUrl } : {}),
+      photoRequiredBy: input.photoRequiredBy ?? null,
+      updatedAt: new Date(),
+    })
+    .where(eq(recipients.id, input.recipientId));
+
+  // Replace apps: clear existing, insert the new set.
+  await db.delete(recipientPaymentApps).where(eq(recipientPaymentApps.recipientId, input.recipientId));
+
+  if (input.apps.length > 0) {
+    await db.insert(recipientPaymentApps).values(
+      input.apps.map((a, i) => ({
+        recipientId: input.recipientId,
+        app: a.app,
+        appHandle: a.appHandle,
+        isPrimary: a.isPrimary ?? i === 0,
+        sortOrder: i,
+      })),
+    );
+  }
+}
+
+/** Fetch a recipient by id, with payment apps. */
+export async function getRecipientById(id: string): Promise<RecipientWithApps | null> {
+  const rows = await db.select().from(recipients).where(eq(recipients.id, id)).limit(1);
+  const recipient = rows[0];
+  if (!recipient) return null;
+  const apps = await db
+    .select()
+    .from(recipientPaymentApps)
+    .where(eq(recipientPaymentApps.recipientId, recipient.id))
+    .orderBy(asc(recipientPaymentApps.sortOrder));
+  return { ...recipient, paymentApps: apps };
 }

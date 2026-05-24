@@ -34,6 +34,9 @@ const BaseFields = {
   smsConsent: z.literal(true, {
     errorMap: () => ({ message: 'SMS consent is required to receive your magic link.' }),
   }),
+  agreedToTerms: z.literal(true, {
+    errorMap: () => ({ message: 'You must be 18+ and accept the Terms to continue.' }),
+  }),
 };
 
 const RecipientSchema = z.object({ role: z.literal('recipient'), handle: z.string().min(2).max(30), ...BaseFields });
@@ -99,6 +102,7 @@ export async function POST(request: Request) {
       lastName: data.lastName,
       phone: phoneE164,
       email: data.email,
+      termsAcceptedAt: new Date(),
       apps: [], // added during profile completion
     });
 
@@ -140,6 +144,7 @@ export async function POST(request: Request) {
       email: data.email,
       phone: phoneE164,
       usesApps: data.usesApps,
+      termsAcceptedAt: new Date(),
     })
     .returning({ id: tippers.id });
 

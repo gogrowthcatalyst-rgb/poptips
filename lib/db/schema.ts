@@ -88,6 +88,10 @@ export const recipients = pgTable(
     phone: text('phone'),
     email: text('email'),
     role: text('role'),
+    termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
+    /** If set and in the past with no photoUrl, the recipient is un-tippable
+     *  until they add a photo. Set at go-live when no photo (48h window). */
+    photoRequiredBy: timestamp('photo_required_by', { withTimezone: true }),
     photoUrl: text('photo_url'),
     message: text('message'),
 
@@ -147,6 +151,7 @@ export const tippers = pgTable(
     ghlContactId: text('ghl_contact_id'),
     /** Self-reported apps the tipper already uses — drives the multi-rail nudge */
     usesApps: text('uses_apps').array(),
+    termsAcceptedAt: timestamp('terms_accepted_at', { withTimezone: true }),
 
     // Acquisition tracking — drives the first-year fee waiver when a tipper
     // signs up through a business's property QR (pop.tips/join/{slug}).

@@ -19,6 +19,7 @@ interface FieldErrors {
   email?: string;
   handle?: string;
   smsConsent?: string;
+  agreedToTerms?: string;
   form?: string;
 }
 
@@ -40,6 +41,7 @@ export function SignupForm({ role }: Props) {
   const [handle, setHandle] = useState('');
   const [usesApps, setUsesApps] = useState<PaymentApp[]>([]);
   const [smsConsent, setSmsConsent] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -104,6 +106,7 @@ export function SignupForm({ role }: Props) {
       else if (handleState === 'taken') next.handle = handleReason || 'Not available';
     }
     if (!smsConsent) next.smsConsent = 'Please consent to receive your magic link by text.';
+    if (!agreedToTerms) next.agreedToTerms = 'You must be 18+ and accept the Terms to continue.';
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -125,6 +128,7 @@ export function SignupForm({ role }: Props) {
             phone: phone.trim(),
             email: email.trim(),
             smsConsent: true as const,
+            agreedToTerms: true as const,
           }
         : {
             role,
@@ -134,6 +138,7 @@ export function SignupForm({ role }: Props) {
             phone: phone.trim(),
             email: email.trim(),
             smsConsent: true as const,
+            agreedToTerms: true as const,
           };
 
     try {
@@ -342,6 +347,29 @@ export function SignupForm({ role }: Props) {
         </span>
       </label>
       {errors.smsConsent && <p className={cn('text-xs', ERROR)}>{errors.smsConsent}</p>}
+
+      {/* Age (18+) + Acceptable Use Policy — required affirmation */}
+      <label className="flex cursor-pointer items-start gap-3">
+        <input
+          type="checkbox"
+          checked={agreedToTerms}
+          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[color:var(--accent)]"
+        />
+        <span className="text-xs leading-relaxed text-ink-dim">
+          I confirm I am <strong className="font-medium text-ink">18 years of age or older</strong>{' '}
+          and agree to the{' '}
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/acceptable-use" target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline">
+            Acceptable Use Policy
+          </a>
+          .
+        </span>
+      </label>
+      {errors.agreedToTerms && <p className={cn('text-xs', ERROR)}>{errors.agreedToTerms}</p>}
 
       {/* Form-level error */}
       {errors.form && (

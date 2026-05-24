@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TrackForcer } from '@/components/TrackForcer';
 import { SendForm } from '@/components/SendForm';
+import { computeTippableStatus } from '@/lib/recipient-status';
 import { ArrowLeft } from '@/components/icons';
 import { isReservedHandle } from '@/lib/reserved-handles';
 import { getRecipientByHandle } from '@/lib/db/recipients';
@@ -38,9 +39,13 @@ export default async function SendPage({ params }: { params: Promise<Params> }) 
     appHandle: a.appHandle,
   }));
 
-  // Defensive: a recipient with no connected apps cannot receive a tip.
-  // Never render a dead send form — show an honest setup-incomplete state.
-  const hasApps = apps.length > 0;
+  // Single rule for tippability (apps present + photo-compliant).
+  const status = computeTippableStatus({
+    paymentAppCount: recipient.paymentApps.length,
+    photoUrl: recipient.photoUrl,
+    photoRequiredBy: recipient.photoRequiredBy,
+  });
+  const hasApps = status === 'live';
 
   return (
     <>
