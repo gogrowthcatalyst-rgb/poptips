@@ -89,6 +89,8 @@ export const recipients = pgTable(
     email: text('email'),
     /** Home ZIP — regional analytics (required at signup; nullable for seed). */
     homeZip: text('home_zip'),
+    /** Birth year — age-cohort analytics (required at signup; nullable for seed). */
+    birthYear: integer('birth_year'),
     role: text('role'),
     /** Shared industry slug (see lib/industries.ts) — the analytics axis. */
     primaryIndustry: text('primary_industry'),
@@ -157,6 +159,8 @@ export const tippers = pgTable(
     phone: text('phone'),
     /** Home ZIP — regional analytics (required at signup; nullable for seed). */
     homeZip: text('home_zip'),
+    /** Birth year — age-cohort analytics (required at signup; nullable for seed). */
+    birthYear: integer('birth_year'),
     /** Shared industry slug (see lib/industries.ts) — "what they tip most". */
     primaryIndustry: text('primary_industry'),
     /** Free-text when primaryIndustry === 'other'. */
