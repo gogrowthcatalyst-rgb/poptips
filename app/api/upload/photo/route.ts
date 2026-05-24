@@ -14,7 +14,7 @@ import { db, recipients } from '@/lib/db';
 
 export const runtime = 'nodejs';
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_BYTES = 15 * 1024 * 1024; // 15 MB backstop (client downscales first)
 const ALLOWED = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const EXT: Record<string, string> = {
   'image/jpeg': 'jpg',

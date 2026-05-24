@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
+import { processImageForUpload } from '@/lib/image-processing';
 
 type Status = 'incomplete' | 'photo_required' | 'live';
 
@@ -42,8 +43,9 @@ export function PhotoComplianceBanner() {
     setError(null);
     setUploading(true);
     try {
+      const processed = await processImageForUpload(file);
       const form = new FormData();
-      form.append('file', file);
+      form.append('file', processed);
       const res = await fetch('/api/upload/photo', { method: 'POST', body: form });
       const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
       if (!res.ok || !data?.ok) {

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/cn';
 import { buildDeepLink } from '@/lib/deep-links';
+import { processImageForUpload } from '@/lib/image-processing';
 import { PAYMENT_APP_ORDER, PAYMENT_APP_META } from '@/lib/payment-apps';
 import type { PaymentApp } from '@/lib/payment-apps';
 
@@ -64,8 +65,9 @@ export function ProfileCompletionForm({
     setPhotoError(null);
     setPhotoUploading(true);
     try {
+      const processed = await processImageForUpload(file);
       const form = new FormData();
-      form.append('file', file);
+      form.append('file', processed);
       const res = await fetch('/api/upload/photo', { method: 'POST', body: form });
       const data = (await res.json().catch(() => null)) as { ok?: boolean; url?: string; error?: string } | null;
       if (!res.ok || !data?.ok || !data.url) {
