@@ -63,17 +63,17 @@ export function buildDeepLink({ app, appHandle, amount, note }: DeepLinkParams):
 
   switch (app) {
     case 'venmo': {
-      // Venmo path-based deep link: username in the PATH (not a query param).
-      // Community-validated as the most reliable form for opening the app
-      // directly to a specific user with amount prefilled.
-      //   https://venmo.com/USERNAME?txn=pay&amount=AMT&note=NOTE
-      // Opens the Venmo app on mobile; falls back to the user's web profile
-      // on desktop. (Venmo publishes no official deep-link API — this is the
-      // best-supported undocumented format.)
-      const params = new URLSearchParams({ txn: 'pay' });
+      // Venmo's documented web-intent: the recipient goes in the `recipients`
+      // QUERY param, NOT the path. The path form (venmo.com/USERNAME) opens
+      // the app but doesn't reliably target the person — on Android it lands
+      // on the generic recent-payments list. `recipients=` is Venmo's own
+      // documented format and pre-fills the pay screen to that user.
+      //   https://venmo.com/?txn=pay&recipients=USERNAME&amount=AMT&note=NOTE
+      // (recipients may be a username, phone, or email.)
+      const params = new URLSearchParams({ txn: 'pay', recipients: handle });
       if (amt) params.set('amount', amt);
       if (note) params.set('note', note);
-      return `https://venmo.com/${encodeURIComponent(handle)}?${params.toString()}`;
+      return `https://venmo.com/?${params.toString()}`;
     }
 
     case 'cashapp': {
