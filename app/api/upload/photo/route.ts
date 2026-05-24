@@ -2,8 +2,15 @@
  * POST /api/upload/photo  (multipart: file)
  *
  * Session-gated photo upload for the logged-in recipient. Validates type +
- * size at the boundary, stores in Vercel Blob keyed by the user's id, returns
- * the public URL. A user can only write their own photo (id from session).
+ * size at the boundary, stores in Vercel Blob, returns the public URL. A user
+ * can only write their own photo (id from session).
+ *
+ * Cache-busting: we use addRandomSuffix:true so every upload produces a NEW
+ * URL. With a fixed key the URL never changed, so CDNs and browsers happily
+ * served the OLD picture after a change (the "I changed my photo but it still
+ * shows the old one" bug). The tradeoff is the previous blob is orphaned; a
+ * periodic cleanup can sweep stale recipient-photos/* later. Correct display
+ * beats a few stale blobs.
  */
 
 import { NextResponse } from 'next/server';
@@ -53,10 +60,11 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(await file.arrayBuffer());
   const ext = EXT[file.type] ?? 'jpg';
 
+  // Unique URL per upload (see header note) so a changed photo is never stale.
   const blob = await put(`recipient-photos/${session.userId}.${ext}`, buffer, {
     access: 'public',
     contentType: file.type,
-    addRandomSuffix: false,
+    addRandomSuffix: true,
   });
 
   // A photo makes them compliant immediately: persist it and clear the window.

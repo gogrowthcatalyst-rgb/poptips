@@ -29,6 +29,7 @@ import { INDUSTRY_SLUGS, OTHER_SLUG, industryLabel } from '@/lib/industries';
 export const runtime = 'nodejs';
 
 const ZIP_RE = /^\d{5}(-\d{4})?$/;
+const NOW_YEAR = new Date().getFullYear();
 
 const BaseFields = {
   firstName: z.string().min(1).max(60),
@@ -37,6 +38,12 @@ const BaseFields = {
   email: z.string().email().max(160),
   // Home ZIP — regional analytics (common-required per the signup spec).
   homeZip: z.string().regex(ZIP_RE, 'Enter a valid ZIP code'),
+  // Birth year — age-cohort analytics. Bounded: 18+ and a sane floor.
+  birthYear: z
+    .number()
+    .int()
+    .min(NOW_YEAR - 120, 'Enter a valid birth year')
+    .max(NOW_YEAR - 18, 'You must be 18 or older'),
   // Shared industry taxonomy — validated against the canonical slug list.
   primaryIndustry: z.enum(INDUSTRY_SLUGS),
   // Free-text only meaningful when industry === 'other'.
@@ -146,7 +153,7 @@ export async function POST(request: Request) {
     // data-access layer untouched; signup is not a hot path).
     await db
       .update(recipients)
-      .set({ homeZip, primaryIndustry, industryOther, updatedAt: new Date() })
+      .set({ homeZip, birthYear: data.birthYear, primaryIndustry, industryOther, updatedAt: new Date() })
       .where(eq(recipients.id, recipient.id));
 
     const magic = await issueMagicLink({
@@ -190,6 +197,7 @@ export async function POST(request: Request) {
       email: data.email,
       phone: phoneE164,
       homeZip,
+      birthYear: data.birthYear,
       primaryIndustry,
       industryOther,
       usesApps: data.usesApps,

@@ -19,6 +19,7 @@ interface FieldErrors {
   phone?: string;
   email?: string;
   zip?: string;
+  birthYear?: string;
   industry?: string;
   industryOther?: string;
   workplaceName?: string;
@@ -30,6 +31,9 @@ interface FieldErrors {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ZIP_RE = /^\d{5}(-\d{4})?$/;
+const NOW_YEAR = new Date().getFullYear();
+const MIN_BIRTH_YEAR = NOW_YEAR - 120;
+const MAX_BIRTH_YEAR = NOW_YEAR - 18; // must be 18+ to use Pop Tips
 const ERROR = 'text-[#B23A2E]';
 const ERROR_BORDER = 'border-[#B23A2E]';
 
@@ -45,6 +49,7 @@ export function SignupForm({ role }: Props) {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [zip, setZip] = useState('');
+  const [birthYear, setBirthYear] = useState('');
   const [industry, setIndustry] = useState('');
   const [industryOther, setIndustryOther] = useState('');
   const [workplaceName, setWorkplaceName] = useState('');
@@ -114,6 +119,10 @@ export function SignupForm({ role }: Props) {
     if (digitsOnly(phone).length < 10) next.phone = 'Enter a valid phone number';
     if (!EMAIL_RE.test(email.trim())) next.email = 'Enter a valid email';
     if (!ZIP_RE.test(zip.trim())) next.zip = 'Enter a 5-digit ZIP';
+    const by = parseInt(birthYear, 10);
+    if (!/^\d{4}$/.test(birthYear.trim()) || by < MIN_BIRTH_YEAR || by > MAX_BIRTH_YEAR) {
+      next.birthYear = 'Enter a valid year — you must be 18+';
+    }
     if (!industry) next.industry = 'Pick one';
     else if (isOther && !industryOther.trim()) next.industryOther = 'Tell us the industry';
     if (isRecipient) {
@@ -141,6 +150,7 @@ export function SignupForm({ role }: Props) {
       phone: phone.trim(),
       email: email.trim(),
       homeZip: zip.trim(),
+      birthYear: parseInt(birthYear, 10),
       primaryIndustry: industry,
       ...(isOther ? { industryOther: industryOther.trim() } : {}),
       smsConsent: true as const,
@@ -303,20 +313,22 @@ export function SignupForm({ role }: Props) {
         />
       </Field>
 
-      {/* Email + Home ZIP row */}
-      <div className="grid gap-5 sm:grid-cols-[1fr_9rem]">
-        <Field label="Email" error={errors.email} htmlFor="email">
-          <TextInput
-            id="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="pete@example.com"
-            invalid={!!errors.email}
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-          />
-        </Field>
+      {/* Email */}
+      <Field label="Email" error={errors.email} htmlFor="email">
+        <TextInput
+          id="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="pete@example.com"
+          invalid={!!errors.email}
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+        />
+      </Field>
+
+      {/* Home ZIP + Birth year */}
+      <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Home ZIP" error={errors.zip} htmlFor="zip" hint="Regional insights">
           <TextInput
             id="zip"
@@ -326,6 +338,22 @@ export function SignupForm({ role }: Props) {
             invalid={!!errors.zip}
             type="text"
             autoComplete="postal-code"
+            inputMode="numeric"
+          />
+        </Field>
+        <Field
+          label="Birth year"
+          error={errors.birthYear}
+          htmlFor="birthYear"
+          hint="Be honest, now — just for your age-group stats"
+        >
+          <TextInput
+            id="birthYear"
+            value={birthYear}
+            onChange={(v) => setBirthYear(v.replace(/\D/g, '').slice(0, 4))}
+            placeholder={String(MAX_BIRTH_YEAR - 12)}
+            invalid={!!errors.birthYear}
+            type="text"
             inputMode="numeric"
           />
         </Field>
