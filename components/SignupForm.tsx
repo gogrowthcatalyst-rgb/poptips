@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn';
 import { track } from '@/lib/analytics';
 import { PAYMENT_APP_ORDER, PAYMENT_APP_META } from '@/lib/payment-apps';
 import type { PaymentApp } from '@/lib/payment-apps';
+import { INDUSTRIES, OTHER_SLUG } from '@/lib/industries';
 
 type Role = 'tipper' | 'recipient';
 
@@ -17,6 +18,10 @@ interface FieldErrors {
   lastName?: string;
   phone?: string;
   email?: string;
+  zip?: string;
+  industry?: string;
+  industryOther?: string;
+  workplaceName?: string;
   handle?: string;
   smsConsent?: string;
   agreedToTerms?: string;
@@ -24,6 +29,7 @@ interface FieldErrors {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ZIP_RE = /^\d{5}(-\d{4})?$/;
 const ERROR = 'text-[#B23A2E]';
 const ERROR_BORDER = 'border-[#B23A2E]';
 
@@ -38,6 +44,10 @@ export function SignupForm({ role }: Props) {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [zip, setZip] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [industryOther, setIndustryOther] = useState('');
+  const [workplaceName, setWorkplaceName] = useState('');
   const [handle, setHandle] = useState('');
   const [usesApps, setUsesApps] = useState<PaymentApp[]>([]);
   const [smsConsent, setSmsConsent] = useState(false);
@@ -94,6 +104,8 @@ export function SignupForm({ role }: Props) {
     );
   };
 
+  const isOther = industry === OTHER_SLUG;
+
   /** Validate all fields at the boundary. Returns true if valid. */
   const validate = (): boolean => {
     const next: FieldErrors = {};
@@ -101,9 +113,13 @@ export function SignupForm({ role }: Props) {
     if (!lastName.trim()) next.lastName = 'Required';
     if (digitsOnly(phone).length < 10) next.phone = 'Enter a valid phone number';
     if (!EMAIL_RE.test(email.trim())) next.email = 'Enter a valid email';
+    if (!ZIP_RE.test(zip.trim())) next.zip = 'Enter a 5-digit ZIP';
+    if (!industry) next.industry = 'Pick one';
+    else if (isOther && !industryOther.trim()) next.industryOther = 'Tell us the industry';
     if (isRecipient) {
       if (handle.trim().length < 2) next.handle = 'Pick a handle';
       else if (handleState === 'taken') next.handle = handleReason || 'Not available';
+      if (!workplaceName.trim()) next.workplaceName = 'Required';
     }
     if (!smsConsent) next.smsConsent = 'Please consent to receive your magic link by text.';
     if (!agreedToTerms) next.agreedToTerms = 'You must be 18+ and accept the Terms to continue.';
@@ -118,27 +134,31 @@ export function SignupForm({ role }: Props) {
     setSubmitting(true);
     setErrors((e) => ({ ...e, form: undefined }));
 
+    // Fields common to both roles.
+    const common = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      homeZip: zip.trim(),
+      primaryIndustry: industry,
+      ...(isOther ? { industryOther: industryOther.trim() } : {}),
+      smsConsent: true as const,
+      agreedToTerms: true as const,
+    };
+
     const payload =
       role === 'recipient'
         ? {
             role,
             handle: handle.trim().toLowerCase(),
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            phone: phone.trim(),
-            email: email.trim(),
-            smsConsent: true as const,
-            agreedToTerms: true as const,
+            workplaceName: workplaceName.trim(),
+            ...common,
           }
         : {
             role,
             usesApps,
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            phone: phone.trim(),
-            email: email.trim(),
-            smsConsent: true as const,
-            agreedToTerms: true as const,
+            ...common,
           };
 
     try {
@@ -283,19 +303,93 @@ export function SignupForm({ role }: Props) {
         />
       </Field>
 
-      {/* Email */}
-      <Field label="Email" error={errors.email} htmlFor="email">
-        <TextInput
-          id="email"
-          value={email}
-          onChange={setEmail}
-          placeholder="pete@example.com"
-          invalid={!!errors.email}
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-        />
+      {/* Email + Home ZIP row */}
+      <div className="grid gap-5 sm:grid-cols-[1fr_9rem]">
+        <Field label="Email" error={errors.email} htmlFor="email">
+          <TextInput
+            id="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="pete@example.com"
+            invalid={!!errors.email}
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+          />
+        </Field>
+        <Field label="Home ZIP" error={errors.zip} htmlFor="zip" hint="Regional insights">
+          <TextInput
+            id="zip"
+            value={zip}
+            onChange={(v) => setZip(v.replace(/[^\d-]/g, '').slice(0, 10))}
+            placeholder="94110"
+            invalid={!!errors.zip}
+            type="text"
+            autoComplete="postal-code"
+            inputMode="numeric"
+          />
+        </Field>
+      </div>
+
+      {/* Industry — the shared analytics axis (label differs by role) */}
+      <Field
+        label={isRecipient ? 'Your industry' : 'What do you tip most?'}
+        error={errors.industry}
+        htmlFor="industry"
+        hint={isRecipient ? 'The kind of place you work' : 'Where you tip most often'}
+      >
+        <select
+          id="industry"
+          value={industry}
+          onChange={(e) => setIndustry(e.target.value)}
+          className={cn(
+            'w-full cursor-pointer rounded-xl border-2 bg-paper px-4 py-3 text-base outline-none transition-colors focus:border-accent',
+            errors.industry ? ERROR_BORDER : 'border-line',
+            industry === '' ? 'text-ink-faint' : 'text-ink',
+          )}
+        >
+          <option value="" disabled>
+            Select…
+          </option>
+          {INDUSTRIES.map((opt) => (
+            <option key={opt.slug} value={opt.slug} className="text-ink">
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </Field>
+
+      {/* "Other" → say which */}
+      {isOther && (
+        <Field label="Which industry?" error={errors.industryOther} htmlFor="industryOther">
+          <TextInput
+            id="industryOther"
+            value={industryOther}
+            onChange={setIndustryOther}
+            placeholder="e.g. Pet grooming"
+            invalid={!!errors.industryOther}
+          />
+        </Field>
+      )}
+
+      {/* Recipient: where you work (name required; address/phone added later) */}
+      {isRecipient && (
+        <Field
+          label="Where you work"
+          error={errors.workplaceName}
+          htmlFor="workplaceName"
+          hint="Business name — helps verify it's really you"
+        >
+          <TextInput
+            id="workplaceName"
+            value={workplaceName}
+            onChange={setWorkplaceName}
+            placeholder="Blue Bottle Coffee — Sarasota"
+            invalid={!!errors.workplaceName}
+            autoComplete="organization"
+          />
+        </Field>
+      )}
 
       {/* Tipper: which apps do you use */}
       {!isRecipient && (
