@@ -68,6 +68,7 @@ export default async function ProfilePage({ params }: { params: Promise<Params> 
                   sizes="(max-width: 768px) 14rem, 18rem"
                   className="object-cover"
                   priority
+                  unoptimized
                 />
               ) : (
                 <span className="font-display text-9xl font-medium italic leading-none text-accent md:text-[10rem]">
