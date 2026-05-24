@@ -6,11 +6,12 @@
  *
  * Flow (Power of Ten aligned — validate at the boundary, check every return,
  * no fatal coupling to external services):
- *   1. Validate the payload by role.
+ *   1. Validate the payload by role (now incl. home ZIP + industry; recipients
+ *      also supply a workplace name).
  *   2. Create the user in our DB (recipient with claimed handle + QR, apps
  *      empty until profile completion; or tipper with self-reported apps).
- *   3. Issue a magic-link token, write the verify URL into the GHL contact's
- *      magic_link_url field, and tag it so the GHL workflow sends the SMS.
+ *   3. Issue a magic-link token, write the verify URL + the new signup fields
+ *      into the GHL contact, and send the SMS.
  *   4. Store the GHL contact id back on the user (best-effort).
  * A GHL failure never blocks account creation.
  */
@@ -23,14 +24,23 @@ import { createRecipient } from '@/lib/db/recipients';
 import { checkHandle } from '@/lib/reserved-handles';
 import { issueMagicLink } from '@/lib/auth/magic-link';
 import { toE164 } from '@/lib/phone';
+import { INDUSTRY_SLUGS, OTHER_SLUG, industryLabel } from '@/lib/industries';
 
 export const runtime = 'nodejs';
+
+const ZIP_RE = /^\d{5}(-\d{4})?$/;
 
 const BaseFields = {
   firstName: z.string().min(1).max(60),
   lastName: z.string().min(1).max(60),
   phone: z.string().min(7).max(40),
   email: z.string().email().max(160),
+  // Home ZIP — regional analytics (common-required per the signup spec).
+  homeZip: z.string().regex(ZIP_RE, 'Enter a valid ZIP code'),
+  // Shared industry taxonomy — validated against the canonical slug list.
+  primaryIndustry: z.enum(INDUSTRY_SLUGS),
+  // Free-text only meaningful when industry === 'other'.
+  industryOther: z.string().max(60).optional(),
   smsConsent: z.literal(true, {
     errorMap: () => ({ message: 'SMS consent is required to receive your magic link.' }),
   }),
@@ -39,13 +49,31 @@ const BaseFields = {
   }),
 };
 
-const RecipientSchema = z.object({ role: z.literal('recipient'), handle: z.string().min(2).max(30), ...BaseFields });
+const RecipientSchema = z.object({
+  role: z.literal('recipient'),
+  handle: z.string().min(2).max(30),
+  // Workplace NAME required at signup (anti-fraud anchor + workplace mapping);
+  // address/phone are editable later.
+  workplaceName: z.string().min(1).max(120),
+  ...BaseFields,
+});
 const TipperSchema = z.object({
   role: z.literal('tipper'),
   usesApps: z.array(z.enum(PAYMENT_APPS)).max(3).optional().default([]),
   ...BaseFields,
 });
-const BodySchema = z.discriminatedUnion('role', [RecipientSchema, TipperSchema]);
+const BodySchema = z
+  .discriminatedUnion('role', [RecipientSchema, TipperSchema])
+  .superRefine((val, ctx) => {
+    // "Other" industry must carry a description, or it's a dead analytics row.
+    if (val.primaryIndustry === OTHER_SLUG && !(val.industryOther && val.industryOther.trim())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['industryOther'],
+        message: 'Tell us the industry.',
+      });
+    }
+  });
 
 export async function POST(request: Request) {
   let raw: unknown;
@@ -75,6 +103,13 @@ export async function POST(request: Request) {
     );
   }
 
+  // Normalize the analytics fields once, used for both DB + GHL.
+  const homeZip = data.homeZip.trim();
+  const primaryIndustry = data.primaryIndustry;
+  const industryOther =
+    primaryIndustry === OTHER_SLUG ? (data.industryOther ?? '').trim() || null : null;
+  const industryDisplay = industryLabel(primaryIndustry, industryOther);
+
   if (data.role === 'recipient') {
     const handle = data.handle.toLowerCase();
 
@@ -103,8 +138,16 @@ export async function POST(request: Request) {
       phone: phoneE164,
       email: data.email,
       termsAcceptedAt: new Date(),
+      workplaceName: data.workplaceName.trim(),
       apps: [], // added during profile completion
     });
+
+    // Set the new analytics columns in one follow-up write (keeps the
+    // data-access layer untouched; signup is not a hot path).
+    await db
+      .update(recipients)
+      .set({ homeZip, primaryIndustry, industryOther, updatedAt: new Date() })
+      .where(eq(recipients.id, recipient.id));
 
     const magic = await issueMagicLink({
       userId: recipient.id,
@@ -113,6 +156,9 @@ export async function POST(request: Request) {
       lastName: data.lastName,
       email: data.email,
       phone: phoneE164,
+      homeZip,
+      primaryIndustryLabel: industryDisplay,
+      workplaceName: data.workplaceName.trim(),
       tag: 'recipient-signup',
       kind: 'signup',
     });
@@ -143,6 +189,9 @@ export async function POST(request: Request) {
       lastName: data.lastName,
       email: data.email,
       phone: phoneE164,
+      homeZip,
+      primaryIndustry,
+      industryOther,
       usesApps: data.usesApps,
       termsAcceptedAt: new Date(),
     })
@@ -157,6 +206,8 @@ export async function POST(request: Request) {
     lastName: data.lastName,
     email: data.email,
     phone: phoneE164,
+    homeZip,
+    primaryIndustryLabel: industryDisplay,
     tag: 'tipper-signup',
     kind: 'signup',
   });
