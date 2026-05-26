@@ -16,7 +16,7 @@ import { db, magicTokens } from '@/lib/db';
 
 export const MAGIC_TTL_SECONDS = 60 * 15; // 15 minutes
 
-export type MagicRole = 'recipient' | 'tipper';
+export type MagicRole = 'recipient' | 'tipper' | 'business';
 
 export interface ConsumedToken {
   userId: string;
@@ -58,7 +58,8 @@ export async function consumeMagicToken(token: string): Promise<ConsumedToken | 
   // Single-use: delete immediately so the link can't be replayed.
   await db.delete(magicTokens).where(eq(magicTokens.token, token));
 
-  const role: MagicRole = row.role === 'tipper' ? 'tipper' : 'recipient';
+  const role: MagicRole =
+    row.role === 'tipper' ? 'tipper' : row.role === 'business' ? 'business' : 'recipient';
   return { userId: row.userId, role };
 }
 

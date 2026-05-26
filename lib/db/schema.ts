@@ -49,6 +49,10 @@ export const businesses = pgTable('businesses', {
   ghlContactId: text('ghl_contact_id'),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
+  /** active | canceled — gates analytics + guest-waiver on cancel. */
+  status: text('status').notNull().default('active'),
+  /** Shared-taxonomy industry slug — seeds positions, flows to workers. */
+  industry: text('industry'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -66,6 +70,7 @@ export const properties = pgTable(
     slug: text('slug').notNull(),
     address: text('address'),
     qrUrl: text('qr_url'),
+    staffQrUrl: text('staff_qr_url'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -244,6 +249,80 @@ export const magicTokens = pgTable(
   }),
 );
 
+/* ─────────────────────────── CORP ───────────────────────────────── */
+
+export const businessPositions = pgTable(
+  'business_positions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    businessId: uuid('business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    label: text('label').notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    active: boolean('active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    businessIdx: index('business_positions_business_idx').on(t.businessId),
+  }),
+);
+
+export const BUSINESS_USER_ROLES = ['owner', 'manager', 'analyst'] as const;
+export type BusinessUserRole = (typeof BUSINESS_USER_ROLES)[number];
+
+export const businessUsers = pgTable(
+  'business_users',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    businessId: uuid('business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    // null = all-properties scope; set = scoped to one location
+    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
+    name: text('name'),
+    email: text('email'),
+    phone: text('phone'),
+    role: text('role').$type<BusinessUserRole>().notNull().default('owner'),
+    status: text('status').notNull().default('active'), // active | invited | removed
+    ghlContactId: text('ghl_contact_id'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    businessIdx: index('business_users_business_idx').on(t.businessId),
+    emailIdx: index('business_users_email_idx').on(t.email),
+  }),
+);
+
+export const businessWorkers = pgTable(
+  'business_workers',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    businessId: uuid('business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    propertyId: uuid('property_id').references(() => properties.id, { onDelete: 'set null' }),
+    recipientId: uuid('recipient_id')
+      .notNull()
+      .references(() => recipients.id, { onDelete: 'cascade' }),
+    positionId: uuid('position_id').references(() => businessPositions.id, { onDelete: 'set null' }),
+    status: text('status').notNull().default('active'), // active | removed
+    // Per-employer earnings-visibility consent (timestamped, revocable).
+    earningsConsentGrantedAt: timestamp('earnings_consent_granted_at', { withTimezone: true }),
+    earningsConsentRevokedAt: timestamp('earnings_consent_revoked_at', { withTimezone: true }),
+    joinedAt: timestamp('joined_at', { withTimezone: true }).defaultNow().notNull(),
+    removedAt: timestamp('removed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    businessIdx: index('business_workers_business_idx').on(t.businessId),
+    propertyIdx: index('business_workers_property_idx').on(t.propertyId),
+    recipientIdx: index('business_workers_recipient_idx').on(t.recipientId),
+  }),
+);
+
 /* ─────────────────────────── INFERRED TYPES ──────────────────────── */
 
 export type Recipient = typeof recipients.$inferSelect;
@@ -258,3 +337,8 @@ export type TipEvent = typeof tipEvents.$inferSelect;
 export type NewTipEvent = typeof tipEvents.$inferInsert;
 export type MagicToken = typeof magicTokens.$inferSelect;
 export type NewMagicToken = typeof magicTokens.$inferInsert;
+export type BusinessPosition = typeof businessPositions.$inferSelect;
+export type BusinessUser = typeof businessUsers.$inferSelect;
+export type NewBusinessUser = typeof businessUsers.$inferInsert;
+export type BusinessWorker = typeof businessWorkers.$inferSelect;
+export type NewBusinessWorker = typeof businessWorkers.$inferInsert;

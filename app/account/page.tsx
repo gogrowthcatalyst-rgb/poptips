@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic';
 export default async function AccountPage() {
   const session = await getSession();
   if (!session) redirect('/');
+  if (session.role === 'business') redirect('/admin'); // admins use /admin, not /account
 
   let initial: AccountInitial;
   let backHref = '/';

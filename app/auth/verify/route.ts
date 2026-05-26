@@ -15,6 +15,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { consumeMagicToken } from '@/lib/auth/tokens';
 import { getRecipientById } from '@/lib/db/recipients';
+import { getBusinessUserById } from '@/lib/db/business';
 import {
   createSessionValue,
   SESSION_COOKIE,
@@ -46,10 +47,24 @@ export async function GET(request: Request) {
     recipientNeedsOnboarding = !recipient || recipient.paymentApps.length === 0;
   }
 
+  let businessId: string | undefined;
+  let businessRole: 'owner' | 'manager' | 'analyst' | undefined;
+  let propertyId: string | null | undefined;
+  if (consumed.role === 'business') {
+    const bu = await getBusinessUserById(consumed.userId);
+    if (!bu) return redirectTo(request, '/auth/expired');
+    businessId = bu.businessId;
+    businessRole = bu.role ?? 'owner';
+    propertyId = bu.propertyId;
+  }
+
   const sessionValue = createSessionValue({
     role: consumed.role,
     userId: consumed.userId,
     handle,
+    businessId,
+    businessRole,
+    propertyId,
   });
 
   if (!sessionValue) {
@@ -59,11 +74,13 @@ export async function GET(request: Request) {
   }
 
   const dest =
-    consumed.role === 'tipper'
-      ? '/dashboard/tipper'
-      : recipientNeedsOnboarding
-        ? '/onboarding'
-        : '/dashboard';
+    consumed.role === 'business'
+      ? '/admin'
+      : consumed.role === 'tipper'
+        ? '/dashboard/tipper'
+        : recipientNeedsOnboarding
+          ? '/onboarding'
+          : '/dashboard';
   const res = redirectTo(request, dest);
 
   const store = await cookies();
