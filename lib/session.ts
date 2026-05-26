@@ -15,9 +15,13 @@ export const SESSION_COOKIE = 'poptips_session';
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 export interface SessionPayload {
-  role: 'recipient' | 'tipper';
+  role: 'recipient' | 'tipper' | 'business';
   userId: string;
   handle?: string;
+  /** business sessions only: the business + the admin's RBAC role/scope */
+  businessId?: string;
+  businessRole?: 'owner' | 'manager' | 'analyst';
+  propertyId?: string | null;
   /** issued-at, epoch seconds */
   iat: number;
 }
@@ -73,7 +77,9 @@ export function readSessionValue(value: string | undefined | null): SessionPaylo
 
   try {
     const parsed = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as SessionPayload;
-    if (parsed.role !== 'recipient' && parsed.role !== 'tipper') return null;
+    if (parsed.role !== 'recipient' && parsed.role !== 'tipper' && parsed.role !== 'business') {
+      return null;
+    }
     if (typeof parsed.userId !== 'string' || !parsed.userId) return null;
     return parsed;
   } catch {
