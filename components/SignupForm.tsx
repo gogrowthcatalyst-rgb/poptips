@@ -200,7 +200,7 @@ export function SignupForm({ role }: Props) {
     }
   };
 
-  /* ── SUCCESS STATE ─────────────────────────────────────────────── */
+  /* -- SUCCESS STATE ----------------------------------------------- */
   if (done) {
     return (
       <div className="rounded-2xl border border-line bg-paper px-6 py-10 text-center md:px-10 md:py-12">
@@ -208,7 +208,7 @@ export function SignupForm({ role }: Props) {
           aria-hidden
           className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-accent-glow text-2xl"
         >
-          ✦
+          ?
         </div>
         <h3 className="font-display text-2xl font-medium italic text-ink">
           Check your phone.
@@ -232,7 +232,7 @@ export function SignupForm({ role }: Props) {
     );
   }
 
-  /* ── FORM ──────────────────────────────────────────────────────── */
+  /* -- FORM -------------------------------------------------------- */
   return (
     <div className="space-y-5">
       {/* Recipient: handle claim — the headline action */}
@@ -263,7 +263,7 @@ export function SignupForm({ role }: Props) {
             )}
             {handleState === 'available' && (
               <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider2 text-jade-700">
-                ✓ Available
+                ? Available
               </span>
             )}
             {handleState === 'taken' && (
@@ -282,7 +282,7 @@ export function SignupForm({ role }: Props) {
             id="firstName"
             value={firstName}
             onChange={setFirstName}
-            placeholder="Pete"
+            placeholder="First name"
             invalid={!!errors.firstName}
             autoComplete="given-name"
           />
@@ -292,7 +292,7 @@ export function SignupForm({ role }: Props) {
             id="lastName"
             value={lastName}
             onChange={setLastName}
-            placeholder="Zeiner"
+            placeholder="Last name"
             invalid={!!errors.lastName}
             autoComplete="family-name"
           />
@@ -305,7 +305,7 @@ export function SignupForm({ role }: Props) {
           id="phone"
           value={phone}
           onChange={setPhone}
-          placeholder="(555) 000-0000"
+          placeholder="Phone number"
           invalid={!!errors.phone}
           type="tel"
           autoComplete="tel"
@@ -319,7 +319,7 @@ export function SignupForm({ role }: Props) {
           id="email"
           value={email}
           onChange={setEmail}
-          placeholder="pete@example.com"
+          placeholder="Email address"
           invalid={!!errors.email}
           type="email"
           autoComplete="email"
@@ -334,7 +334,7 @@ export function SignupForm({ role }: Props) {
             id="zip"
             value={zip}
             onChange={(v) => setZip(v.replace(/[^\d-]/g, '').slice(0, 10))}
-            placeholder="94110"
+            placeholder="ZIP code"
             invalid={!!errors.zip}
             type="text"
             autoComplete="postal-code"
@@ -351,7 +351,7 @@ export function SignupForm({ role }: Props) {
             id="birthYear"
             value={birthYear}
             onChange={(v) => setBirthYear(v.replace(/\D/g, '').slice(0, 4))}
-            placeholder={String(MAX_BIRTH_YEAR - 12)}
+            placeholder="YYYY"
             invalid={!!errors.birthYear}
             type="text"
             inputMode="numeric"
@@ -387,7 +387,7 @@ export function SignupForm({ role }: Props) {
         </select>
       </Field>
 
-      {/* "Other" → say which */}
+      {/* "Other" ? say which */}
       {isOther && (
         <Field label="Which industry?" error={errors.industryOther} htmlFor="industryOther">
           <TextInput
@@ -412,7 +412,7 @@ export function SignupForm({ role }: Props) {
             id="workplaceName"
             value={workplaceName}
             onChange={setWorkplaceName}
-            placeholder="Blue Bottle Coffee — Sarasota"
+            placeholder="Business name"
             invalid={!!errors.workplaceName}
             autoComplete="organization"
           />
@@ -513,7 +513,7 @@ export function SignupForm({ role }: Props) {
   );
 }
 
-/* ── Small field primitives (Power of Ten: small, single-purpose) ─── */
+/* -- Small field primitives (Power of Ten: small, single-purpose) --- */
 
 function Field({
   label,
