@@ -32,6 +32,13 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
       capture_pageview: false, // we fire manually on App Router navigations
       capture_pageleave: true,
       person_profiles: 'identified_only', // GDPR-friendlier default
+      session_recording: {
+        // Belt-and-suspenders over PostHog's default: never let typed PII
+        // (name, phone, email, ZIP) land in a session replay. Pinned
+        // explicitly so we don't depend on an undocumented default.
+        maskAllInputs: true,
+        maskInputOptions: { password: true, email: true, tel: true },
+      },
     });
 
     // Make available to the global track() helper
