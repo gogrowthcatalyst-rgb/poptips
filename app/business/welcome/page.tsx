@@ -19,9 +19,15 @@ import { issueMagicLink } from '@/lib/auth/magic-link';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+const CORAL = {
+  '--accent': '#F06844',
+  '--accent-dim': '#C44A2C',
+  '--accent-glow': '#FFA587',
+} as React.CSSProperties;
+
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto max-w-lg px-5 py-16 md:py-24">
+    <main style={CORAL} className="mx-auto max-w-lg px-5 py-16 md:py-24">
       <div className="rounded-2xl border border-line bg-paper px-6 py-10 text-center md:px-10 md:py-12">
         <p className="font-mono text-xs font-medium uppercase tracking-wider2 text-accent">
           Pop Tips for Organizations

@@ -6,6 +6,12 @@ import { tierMeta } from '@/lib/corp/tiers';
 export const metadata = { title: 'Admin — Pop Tips for Organizations' };
 export const dynamic = 'force-dynamic';
 
+const CORAL = {
+  '--accent': '#F06844',
+  '--accent-dim': '#C44A2C',
+  '--accent-glow': '#FFA587',
+} as React.CSSProperties;
+
 export default async function AdminPage() {
   const session = await getSession();
   if (!session || session.role !== 'business' || !session.businessId) redirect('/');
@@ -16,7 +22,7 @@ export default async function AdminPage() {
   const plan = tierMeta(business.tier ?? '');
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-24 pt-10 md:px-8 md:pt-14">
+    <main style={CORAL} className="mx-auto max-w-3xl px-5 pb-24 pt-10 md:px-8 md:pt-14">
       <header className="mb-8">
         <p className="font-mono text-xs font-medium uppercase tracking-wider2 text-accent">
           Admin · {session.businessRole ?? 'owner'}

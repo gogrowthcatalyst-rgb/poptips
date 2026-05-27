@@ -4,6 +4,14 @@ import type { BusinessTier } from '@/lib/db/schema';
 
 export const metadata = { title: 'Get set up — Pop Tips for Organizations' };
 
+// Corp surface wears the brand's coral accent (scoped, SSR-safe — no track-engine
+// side effects). Cascades to every bg-accent/text-accent/border-accent child.
+const CORAL = {
+  '--accent': '#F06844',
+  '--accent-dim': '#C44A2C',
+  '--accent-glow': '#FFA587',
+} as React.CSSProperties;
+
 export default async function BusinessSignupPage({
   searchParams,
 }: {
@@ -13,7 +21,11 @@ export default async function BusinessSignupPage({
   const defaultTier: BusinessTier | undefined = tier && isBusinessTier(tier) ? tier : undefined;
 
   return (
-    <main className="mx-auto max-w-2xl px-5 pb-24 pt-10 md:px-8 md:pt-14">
+    <main style={CORAL} className="relative mx-auto max-w-2xl overflow-hidden px-5 pb-24 pt-10 md:px-8 md:pt-14">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-12 -top-12 h-64 w-64 rounded-full bg-coral-300 opacity-25 blur-3xl"
+      />
       <header className="mb-8">
         <p className="font-mono text-xs font-medium uppercase tracking-wider2 text-accent">
           Pop Tips for Organizations

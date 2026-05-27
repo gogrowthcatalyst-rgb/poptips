@@ -86,13 +86,28 @@ export function BusinessSignupForm({ defaultTier }: { defaultTier?: BusinessTier
                 onClick={() => setTier(t)}
                 aria-pressed={active}
                 className={cn(
-                  'rounded-xl border-2 px-4 py-3 text-left transition-all duration-200',
-                  active ? 'border-accent bg-accent-glow/20 shadow-lift' : 'border-line bg-paper hover:border-accent',
+                  'group relative rounded-2xl border-2 px-4 py-4 pr-11 text-left transition-all duration-200 ease-out-soft',
+                  active
+                    ? 'border-accent bg-accent-glow/15 shadow-lift -translate-y-0.5'
+                    : 'border-line bg-paper hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-lift',
                 )}
               >
-                <div className="flex items-baseline justify-between">
-                  <span className="font-display text-sm font-medium text-ink">{meta.label}</span>
-                  <span className="font-mono text-sm text-ink">
+                <span
+                  aria-hidden
+                  className={cn(
+                    'absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all duration-200',
+                    active
+                      ? 'border-accent bg-accent text-paper'
+                      : 'border-line bg-paper text-transparent group-hover:border-accent/50',
+                  )}
+                >
+                  <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M2.5 6.5l2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-display text-base font-medium text-ink">{meta.label}</span>
+                  <span className={cn('font-mono text-sm font-medium', active ? 'text-accent' : 'text-ink')}>
                     ${meta.priceMonthly}
                     <span className="text-ink-faint">/mo</span>
                   </span>
