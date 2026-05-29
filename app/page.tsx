@@ -6,6 +6,7 @@ import { useTrack, type TrackId } from '@/lib/track';
 import { AudiencePortraits } from '@/components/AudiencePortraits';
 import { CelebrationBlock } from '@/components/CelebrationBlock';
 import { PopCircle } from '@/components/PopCircle';
+import { HeroPop } from '@/components/HeroPop';
 import { Reveal } from '@/components/Reveal';
 import { ArrowRight } from '@/components/icons';
 import { StepScan } from '@/components/illustrations/StepScan';
@@ -162,9 +163,9 @@ export default function HomePage() {
             </Reveal>
           </div>
 
-          {/* Pop-circle on the right (stacked above on mobile) */}
+          {/* Hero pop on the right (stacked above on mobile) */}
           <div className="order-first mx-auto md:order-last md:ml-auto">
-            <PopCircle amount={20} size={260} className="md:scale-110" />
+            <HeroPop size={300} className="md:scale-110" />
           </div>
         </div>
       </section>

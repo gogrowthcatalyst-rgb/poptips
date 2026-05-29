@@ -32,6 +32,7 @@ import {
   RecentSentTips,
 } from '@/components/dashboard/TipperEngagement';
 import { TipperOnboardingChecklist } from '@/components/dashboard/TipperOnboardingChecklist';
+import { AccountLink } from '@/components/DashboardHeader';
 
 function TipperDashboardInner() {
   const searchParams = useSearchParams();
@@ -92,12 +93,15 @@ function TipperDashboardInner() {
               )}
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-coral-100 bg-gradient-to-br from-coral-50 to-paper px-3.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-wider2 text-coral-700">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-coral-500" />
-            {isEmpty
-              ? 'Setup mode · 1 of 3 steps done'
-              : 'One-to-one tipping, directly'}
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-coral-100 bg-gradient-to-br from-coral-50 to-paper px-3.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-wider2 text-coral-700">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-coral-500" />
+              {isEmpty
+                ? 'Setup mode · 1 of 3 steps done'
+                : 'One-to-one tipping, directly'}
+            </span>
+            <AccountLink />
+          </div>
         </div>
       </Reveal>
 

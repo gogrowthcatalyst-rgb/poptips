@@ -6,6 +6,7 @@ import { track } from '@/lib/analytics';
 import { buildDeepLink } from '@/lib/deep-links';
 import { PAYMENT_APP_META } from '@/lib/payment-apps';
 import type { PaymentApp } from '@/lib/payment-apps';
+import { PopCelebrate } from './PopCelebrate';
 
 /**
  * Send flow — bulletproofed (Power of Ten aligned).
@@ -159,6 +160,24 @@ export function SendForm({ handle, displayName, apps }: Props) {
             className="money flex-1 border-0 bg-transparent text-lg font-medium text-ink outline-none placeholder:text-ink-faint"
           />
         </label>
+
+        {/* Copy the amount before tapping Venmo — Venmo strips amount prefill on
+            external taps, so the tipper pastes it after the app opens. The tap
+            stays under your control, the number doesn't get mistyped. */}
+        {amount !== null && amount > 0 ? (
+          <button
+            type="button"
+            onClick={() => copyText('amt-pre', formatAmount(amount))}
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-line bg-paper px-5 py-3 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-dim transition-all duration-200 ease-out-soft hover:border-accent hover:text-accent active:scale-[0.98] md:w-auto"
+            aria-label={`Copy $${formatAmount(amount)} to clipboard`}
+          >
+            {copied === 'amt-pre' ? (
+              <>Copied · ${formatAmount(amount)} ready to paste</>
+            ) : (
+              <>Copy ${formatAmount(amount)} for Venmo →</>
+            )}
+          </button>
+        ) : null}
       </section>
 
       {/* APP PICKER ================================================= */}
@@ -244,6 +263,21 @@ function ConfirmPanel({
   const deepLink = buildDeepLink({ app: appId, appHandle, amount });
   const prefixed = `${meta.handlePrefix}${appHandle}`;
 
+  // Brand-mnemonic celebration on tap: visual + audio play BEFORE the deep
+  // link fires, so the tipper hears pop/cha-ching at the moment of giving.
+  // The redirect waits the celebration window so the moment isn't cut off
+  // by the OS handing control to the payment app.
+  const [celebrating, setCelebrating] = useState(false);
+  const handleOpen = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!deepLink) return; // shouldn't happen — guarded above
+    e.preventDefault();
+    onOpen(); // logs the tip immediately
+    setCelebrating(true);
+    window.setTimeout(() => {
+      window.location.href = deepLink;
+    }, 1100);
+  };
+
   return (
     <section
       aria-label={`Send ${meta.label}`}
@@ -251,14 +285,22 @@ function ConfirmPanel({
     >
       {/* Primary: one-tap deep link (best case) */}
       {deepLink ? (
-        <a
-          href={deepLink}
-          onClick={onOpen}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-6 py-5 text-center font-display text-xl font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-accent-dim active:scale-[0.98] md:text-2xl"
+        <PopCelebrate
+          play={celebrating}
+          message="Tip sent."
+          audioSrc="/sounds/tip-celebrate.mp3"
+          pieces={20}
+          spread={180}
         >
-          Open {meta.label} to send{' '}
-          <span className="money font-semibold">${amountStr}</span>
-        </a>
+          <a
+            href={deepLink}
+            onClick={handleOpen}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-6 py-5 text-center font-display text-xl font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-accent-dim active:scale-[0.98] md:text-2xl"
+          >
+            Open {meta.label} to send{' '}
+            <span className="money font-semibold">${amountStr}</span>
+          </a>
+        </PopCelebrate>
       ) : null}
 
       {/* Guaranteed manual fallback — ALWAYS shown, never a dead end. */}

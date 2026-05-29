@@ -22,6 +22,8 @@ import {
 } from '@/components/dashboard/Engagement';
 import { OnboardingChecklist } from '@/components/dashboard/OnboardingChecklist';
 import { PhotoComplianceBanner } from '@/components/dashboard/PhotoComplianceBanner';
+import { AccountLink } from '@/components/DashboardHeader';
+import { PopCelebrate } from '@/components/PopCelebrate';
 
 function DashboardInner() {
   const searchParams = useSearchParams();
@@ -44,6 +46,7 @@ function DashboardInner() {
 
   // Show the share-milestone strip only when active AND user crossed a threshold
   const showMilestone = !isEmpty && stats.lifetime.amount >= 250000;
+  const shouldCelebrate = searchParams.get('celebrate') === '1';
 
   return (
     <main className="mx-auto max-w-[1400px] px-5 pb-20 pt-10 md:px-8 md:pt-12">
@@ -52,7 +55,15 @@ function DashboardInner() {
 
       {/* WELCOME ============================================ */}
       <Reveal>
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <PopCelebrate
+          play={shouldCelebrate}
+          message="Tip received!"
+          audioSrc="/sounds/tip-celebrate.mp3"
+          pieces={20}
+          spread={180}
+          className="mb-8"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-1.5 font-mono text-xs font-medium uppercase tracking-wider2 text-jade-700">
               Your dashboard
@@ -81,13 +92,17 @@ function DashboardInner() {
               )}
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-jade-100 bg-gradient-to-br from-jade-50 to-paper px-3.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-wider2 text-jade-700">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-jade-500" />
-            {isEmpty
-              ? 'Setup mode · 1 of 3 steps done'
-              : 'Tips arriving directly · 100% to you'}
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-jade-100 bg-gradient-to-br from-jade-50 to-paper px-3.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-wider2 text-jade-700">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-jade-500" />
+              {isEmpty
+                ? 'Setup mode · 1 of 3 steps done'
+                : 'Tips arriving directly · 100% to you'}
+            </span>
+            <AccountLink />
+          </div>
         </div>
+        </PopCelebrate>
       </Reveal>
 
       {/* ONBOARDING CHECKLIST — zero state only ============= */}
