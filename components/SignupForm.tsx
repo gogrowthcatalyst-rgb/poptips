@@ -200,7 +200,7 @@ export function SignupForm({ role }: Props) {
     }
   };
 
-  /* -- SUCCESS STATE ----------------------------------------------- */
+  /* ── SUCCESS STATE ─────────────────────────────────────────────── */
   if (done) {
     return (
       <div className="rounded-2xl border border-line bg-paper px-6 py-10 text-center md:px-10 md:py-12">
@@ -208,7 +208,7 @@ export function SignupForm({ role }: Props) {
           aria-hidden
           className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-accent-glow text-2xl"
         >
-          ?
+          ✦
         </div>
         <h3 className="font-display text-2xl font-medium italic text-ink">
           Check your phone.
@@ -232,7 +232,7 @@ export function SignupForm({ role }: Props) {
     );
   }
 
-  /* -- FORM -------------------------------------------------------- */
+  /* ── FORM ──────────────────────────────────────────────────────── */
   return (
     <div className="space-y-5">
       {/* Recipient: handle claim — the headline action */}
@@ -263,7 +263,7 @@ export function SignupForm({ role }: Props) {
             )}
             {handleState === 'available' && (
               <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider2 text-jade-700">
-                ? Available
+                ✓ Available
               </span>
             )}
             {handleState === 'taken' && (
@@ -387,7 +387,7 @@ export function SignupForm({ role }: Props) {
         </select>
       </Field>
 
-      {/* "Other" ? say which */}
+      {/* "Other" → say which */}
       {isOther && (
         <Field label="Which industry?" error={errors.industryOther} htmlFor="industryOther">
           <TextInput
@@ -513,7 +513,7 @@ export function SignupForm({ role }: Props) {
   );
 }
 
-/* -- Small field primitives (Power of Ten: small, single-purpose) --- */
+/* ── Small field primitives (Power of Ten: small, single-purpose) ─── */
 
 function Field({
   label,
