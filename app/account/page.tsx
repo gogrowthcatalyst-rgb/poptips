@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { TrackForcer } from '@/components/TrackForcer';
 import { AccountForm, type AccountInitial } from '@/components/AccountForm';
+import { SignInForm } from '@/components/SignInForm';
 import { getSession } from '@/lib/auth/server';
 import { getRecipientById, getTipperById } from '@/lib/db/profile';
 import { ArrowLeft } from '@/components/icons';
@@ -91,42 +92,54 @@ export default async function AccountPage() {
 
 /**
  * Friendly landing when an unauthenticated visitor hits /account — replaces
- * the prior silent redirect-to-home (which left users baffled when the
- * Account button "did nothing"). Two clear CTAs by track, plus a nod that
- * existing users should use the magic link from their SMS.
+ * the prior silent redirect-to-home. Leads with the phone "Pop me back in"
+ * form (the returning-user case is by far the most common reason to land
+ * here), with signup CTAs below as the "new here" path.
  */
 function SignedOutLanding() {
   return (
-    <main className="mx-auto max-w-lg px-5 py-16 md:py-24">
-      <div className="rounded-2xl border border-line bg-paper px-6 py-10 text-center md:px-10 md:py-12">
+    <main className="mx-auto max-w-lg px-5 py-12 md:py-16">
+      {/* Primary: returning user — text me a link */}
+      <div className="rounded-2xl border border-line bg-paper px-6 py-9 md:px-9 md:py-11">
         <p className="font-mono text-xs font-medium uppercase tracking-wider2 text-accent">
           Pop Tips
         </p>
         <h1 className="mt-2 font-display text-3xl font-medium leading-tight tracking-tightest text-ink">
-          You&rsquo;re not signed in yet.
+          Welcome back.
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-ink-dim">
-          Accounts are free. Pick the one that fits.
+        <p className="mt-2 text-sm leading-relaxed text-ink-dim">
+          No passwords here. Enter the phone you signed up with and we&rsquo;ll
+          text you a one-tap link.
         </p>
-        <div className="mt-7 grid gap-3">
+        <div className="mt-6">
+          <SignInForm />
+        </div>
+      </div>
+
+      {/* Secondary: new visitor — signup */}
+      <div className="mt-8 rounded-2xl border border-line-soft bg-surface px-6 py-7 md:px-9 md:py-8">
+        <p className="font-mono text-[11px] font-medium uppercase tracking-wider2 text-ink-faint">
+          New to Pop Tips?
+        </p>
+        <h2 className="mt-1 font-display text-xl font-medium leading-snug text-ink">
+          Pick the one that fits.
+        </h2>
+        <div className="mt-5 grid gap-3">
           <Link
             href="/signup-recipient"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-jade-500 px-6 py-3.5 font-display text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-jade-700 active:scale-[0.98]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-jade-500 px-6 py-3 font-display text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-jade-700 active:scale-[0.98]"
           >
             I want to receive tips
             <span aria-hidden>→</span>
           </Link>
           <Link
             href="/signup-tipper"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral-500 px-6 py-3.5 font-display text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-coral-700 active:scale-[0.98]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral-500 px-6 py-3 font-display text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-coral-700 active:scale-[0.98]"
           >
             I want to tip
             <span aria-hidden>→</span>
           </Link>
         </div>
-        <p className="mt-7 font-mono text-[11px] uppercase tracking-wider2 text-ink-faint">
-          Already signed up? Use the secure link we texted you.
-        </p>
       </div>
     </main>
   );

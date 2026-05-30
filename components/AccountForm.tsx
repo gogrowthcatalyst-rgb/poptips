@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/cn';
 import { PAYMENT_APP_ORDER, PAYMENT_APP_META } from '@/lib/payment-apps';
 import type { PaymentApp } from '@/lib/payment-apps';
@@ -62,6 +62,17 @@ export function AccountForm({ initial }: { initial: AccountInitial }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Reaching this form means /account loaded with a valid session — i.e. a
+  // real authenticated member on this device. Set the localStorage flag the
+  // home page's ReturningUserCTA reads. Soft signal only, never used for auth.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('poptips:hasAccount', '1');
+    } catch {
+      /* storage blocked — silently skip; home CTA just won't appear */
+    }
+  }, []);
 
   const isOther = industry === OTHER_SLUG;
 

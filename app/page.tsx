@@ -7,6 +7,7 @@ import { AudiencePortraits } from '@/components/AudiencePortraits';
 import { CelebrationBlock } from '@/components/CelebrationBlock';
 import { PopCircle } from '@/components/PopCircle';
 import { HeroPop } from '@/components/HeroPop';
+import { ReturningUserCTA } from '@/components/ReturningUserCTA';
 import { Reveal } from '@/components/Reveal';
 import { ArrowRight } from '@/components/icons';
 import { StepScan } from '@/components/illustrations/StepScan';
@@ -160,6 +161,9 @@ export default function HomePage() {
               <p className="mt-6 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-faint">
                 100% to the worker. <span className="text-accent">Instantly.</span>
               </p>
+            </Reveal>
+            <Reveal delay={360}>
+              <ReturningUserCTA />
             </Reveal>
           </div>
 
