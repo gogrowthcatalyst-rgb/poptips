@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AccountPage() {
   const session = await getSession();
-  if (!session) redirect('/');
+  if (!session) return <SignedOutLanding />;
   if (session.role === 'business') redirect('/admin'); // admins use /admin, not /account
 
   let initial: AccountInitial;
@@ -38,6 +38,9 @@ export default async function AccountPage() {
       workplaceName: r.workplaceName ?? '',
       workplaceAddress: r.workplaceAddress ?? '',
       workplacePhone: r.workplacePhone ?? '',
+      // Read-only display in the protected card — confirms the handle without
+      // offering an edit path (handle/payout swap = A2 crown jewel).
+      handle: r.handle ?? '',
     };
   } else {
     const t = await getTipperById(session.userId);
@@ -83,5 +86,48 @@ export default async function AccountPage() {
         <AccountForm initial={initial} />
       </main>
     </>
+  );
+}
+
+/**
+ * Friendly landing when an unauthenticated visitor hits /account — replaces
+ * the prior silent redirect-to-home (which left users baffled when the
+ * Account button "did nothing"). Two clear CTAs by track, plus a nod that
+ * existing users should use the magic link from their SMS.
+ */
+function SignedOutLanding() {
+  return (
+    <main className="mx-auto max-w-lg px-5 py-16 md:py-24">
+      <div className="rounded-2xl border border-line bg-paper px-6 py-10 text-center md:px-10 md:py-12">
+        <p className="font-mono text-xs font-medium uppercase tracking-wider2 text-accent">
+          Pop Tips
+        </p>
+        <h1 className="mt-2 font-display text-3xl font-medium leading-tight tracking-tightest text-ink">
+          You&rsquo;re not signed in yet.
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-ink-dim">
+          Accounts are free. Pick the one that fits.
+        </p>
+        <div className="mt-7 grid gap-3">
+          <Link
+            href="/signup-recipient"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-jade-500 px-6 py-3.5 font-display text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-jade-700 active:scale-[0.98]"
+          >
+            I want to receive tips
+            <span aria-hidden>→</span>
+          </Link>
+          <Link
+            href="/signup-tipper"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral-500 px-6 py-3.5 font-display text-base font-medium text-paper shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-px hover:bg-coral-700 active:scale-[0.98]"
+          >
+            I want to tip
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
+        <p className="mt-7 font-mono text-[11px] uppercase tracking-wider2 text-ink-faint">
+          Already signed up? Use the secure link we texted you.
+        </p>
+      </div>
+    </main>
   );
 }

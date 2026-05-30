@@ -23,6 +23,9 @@ export interface AccountInitial {
   workplaceName?: string;
   workplaceAddress?: string;
   workplacePhone?: string;
+  /** Read-only display in the protected card; not editable from /account. */
+  handle?: string;
+  paymentApps?: { app: PaymentApp; appHandle: string }[];
   // tipper-only
   usesApps?: PaymentApp[];
 }
@@ -333,14 +336,66 @@ export function AccountForm({ initial }: { initial: AccountInitial }) {
         </fieldset>
       )}
 
-      {/* Secured edits live elsewhere — set expectation, don't dead-end */}
-      <p className="rounded-xl border border-line bg-surface px-4 py-3 text-xs leading-relaxed text-ink-faint">
-        {isRecipient ? (
-          <>Your <span className="font-medium text-ink-dim">handle</span> and your <span className="font-medium text-ink-dim">payout apps</span> are changed through a secured, text-verified flow — coming next.</>
-        ) : (
-          <>Your email and phone are your sign-in identity and aren&rsquo;t edited here.</>
-        )}
-      </p>
+      {/* Protected payout details — prominent on purpose. Handle + payment-app
+          editing is deliberately NOT exposed here (A2 crown-jewel attack: an
+          attacker with a stolen session could redirect a worker's tips). Edits
+          ship behind SMS step-up. Until then, this card confirms what's set so
+          recipients can verify their setup without a phantom-broken edit UI. */}
+      {isRecipient ? (
+        <section className="rounded-2xl border-2 border-jade-100 bg-jade-50/40 p-5 md:p-6">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-full bg-jade-100 text-jade-700">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                <rect x="5" y="11" width="14" height="10" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-mono text-xs font-semibold uppercase tracking-wider2 text-jade-700">
+                Protected · how tips reach you
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-dim">
+                Your <span className="font-medium text-ink">handle</span> and{' '}
+                <span className="font-medium text-ink">payout apps</span> can only be changed through an
+                SMS-verified step, so a stolen browser session can&rsquo;t silently redirect your tips.
+                Secured edits are shipping next — for now, reply to your welcome text if you need a change.
+              </p>
+
+              {initial.handle ? (
+                <div className="mt-4 rounded-xl border border-jade-100 bg-paper px-4 py-3">
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-wider2 text-ink-faint">
+                    Your handle
+                  </p>
+                  <p className="mt-0.5 font-mono text-base text-ink">@{initial.handle}</p>
+                </div>
+              ) : null}
+
+              {initial.paymentApps && initial.paymentApps.length > 0 ? (
+                <div className="mt-2 rounded-xl border border-jade-100 bg-paper px-4 py-3">
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-wider2 text-ink-faint">
+                    Payout apps
+                  </p>
+                  <ul className="mt-1 space-y-1">
+                    {initial.paymentApps.map((p) => (
+                      <li key={p.app} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 font-mono text-sm">
+                        <span className="text-ink-dim">{PAYMENT_APP_META[p.app].label}</span>
+                        <span className="text-ink">
+                          {PAYMENT_APP_META[p.app].handlePrefix}
+                          {p.appHandle}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : (
+        <p className="rounded-xl border border-line bg-surface px-4 py-3 text-xs leading-relaxed text-ink-faint">
+          Your email and phone are your sign-in identity and aren&rsquo;t edited here.
+        </p>
+      )}
 
       {errors.form && (
         <p className={cn('rounded-xl border px-4 py-3 text-sm', ERROR, ERROR_BORDER)}>{errors.form}</p>

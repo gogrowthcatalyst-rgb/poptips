@@ -30,7 +30,7 @@ export function HeroPop({ size = 300, className }: Props) {
         role="img"
         aria-label="Pop Tips — a $20 tip"
       >
-        {/* The brand icon */}
+        {/* The brand icon (transparent PNG) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/poptipsicon512.png"
@@ -41,22 +41,32 @@ export function HeroPop({ size = 300, className }: Props) {
           draggable={false}
         />
 
-        {/* $20 centered overlay */}
+        {/* $20 chip — a cream paper disc that visually replaces the icon's
+            green center, with ink "$20" inside. Solves the prior white-on-
+            white legibility problem. The icon's outer gold rays + blue ring
+            still preserve the brand mark. */}
         <div
           aria-hidden
           className="hero-amt pointer-events-none absolute inset-0 flex items-center justify-center"
         >
-          <span
-            className="font-display font-semibold italic text-white"
+          <div
+            className="flex aspect-square items-center justify-center rounded-full bg-paper"
             style={{
-              fontSize: size * 0.34,
-              letterSpacing: '-0.02em',
-              textShadow:
-                '0 2px 10px rgba(0,0,0,0.35), 0 0 28px rgba(0,0,0,0.22), 0 1px 0 rgba(0,0,0,0.25)',
+              width: '52%',
+              boxShadow: '0 6px 22px rgba(14,20,32,0.18), 0 0 0 1px rgba(14,20,32,0.06)',
             }}
           >
-            $20
-          </span>
+            <span
+              className="font-display font-semibold italic text-ink"
+              style={{
+                fontSize: size * 0.19,
+                letterSpacing: '-0.02em',
+                lineHeight: 1,
+              }}
+            >
+              $20
+            </span>
+          </div>
         </div>
       </div>
 

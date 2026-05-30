@@ -12,7 +12,7 @@ export function AccountLink() {
   return (
     <Link
       href="/account"
-      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 font-mono text-xs font-medium uppercase tracking-wider2 text-ink-dim transition-colors duration-200 hover:border-accent hover:text-accent"
+      className="inline-flex items-center gap-1.5 rounded-full bg-gold-500 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider2 text-ink shadow-lift transition-all duration-200 ease-out-soft hover:-translate-y-0.5 hover:bg-gold-700 hover:text-paper active:scale-[0.98]"
     >
       Account
       <span aria-hidden>→</span>
