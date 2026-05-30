@@ -89,12 +89,26 @@ export function AccountForm({ initial }: { initial: AccountInitial }) {
       const res = await fetch('/api/upload/photo', { method: 'POST', body: fd });
       const data = (await res.json().catch(() => null)) as { ok?: boolean; url?: string; error?: string } | null;
       if (!res.ok || !data?.ok || !data.url) {
-        setErrors((e) => ({ ...e, photo: data?.error ?? 'Upload failed.' }));
+        // Surface a specific message based on what the server actually said.
+        // Generic "Upload failed." was hiding root causes — now the user (and
+        // we) can see exactly what tripped: auth, config, file size, etc.
+        const fallback =
+          res.status === 401
+            ? 'Session expired — refresh and try again.'
+            : res.status === 413
+              ? 'Image is too large (max 15 MB).'
+              : res.status === 415
+                ? 'Use a JPG, PNG, or WebP image.'
+                : res.status === 503
+                  ? 'Photo uploads are not configured on the server. Contact support.'
+                  : `Upload failed · HTTP ${res.status}`;
+        setErrors((e) => ({ ...e, photo: data?.error ?? fallback }));
       } else {
         setPhotoUrl(data.url); // URL is unique per upload — no stale cache
       }
-    } catch {
-      setErrors((e) => ({ ...e, photo: 'Network error during upload.' }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'network error';
+      setErrors((e) => ({ ...e, photo: `Network error during upload (${msg}).` }));
     } finally {
       setPhotoBusy(false);
     }
