@@ -437,6 +437,24 @@ export function AccountForm({ initial }: { initial: AccountInitial }) {
         </button>
         {saved && <span className="font-mono text-xs uppercase tracking-wider2 text-jade-700">✓ Saved</span>}
       </div>
+
+      {/* Sign-out lives at the bottom, low-emphasis but findable — matches
+          the "if you want to leave, the door's here" pattern (similar to
+          delete-account links in settings pages). Real <form> POST so it
+          works without JS and can't be triggered by link prefetchers.
+          Quiet visual: text-link styling, no button chrome. */}
+      <form
+        method="POST"
+        action="/api/auth/logout"
+        className="mt-12 flex justify-center border-t border-line-soft pt-8"
+      >
+        <button
+          type="submit"
+          className="font-mono text-xs font-medium uppercase tracking-wider2 text-ink-faint transition-colors hover:text-ink underline-offset-4 hover:underline"
+        >
+          Pop me out
+        </button>
+      </form>
     </div>
   );
 }
