@@ -184,7 +184,7 @@ export function PopCelebrate({
     <div ref={containerRef} className={cn('relative isolate', className)}>
       {children}
       {audioSrc ? (
-        <audio ref={audioRef} src={audioSrc} preload="auto" aria-hidden />
+        <audio ref={audioRef} src={audioSrc} preload="none" aria-hidden />
       ) : null}
     </div>
   );
