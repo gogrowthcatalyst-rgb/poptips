@@ -41,32 +41,26 @@ export function HeroPop({ size = 300, className }: Props) {
           draggable={false}
         />
 
-        {/* $20 chip — a cream paper disc that visually replaces the icon's
-            green center, with ink "$20" inside. Solves the prior white-on-
-            white legibility problem. The icon's outer gold rays + blue ring
-            still preserve the brand mark. */}
+        {/* $20 directly on the icon's green center — no overlay disc. The
+            green ↔ white contrast (~2.6:1) is braced by a soft drop shadow
+            so the type reads cleanly without "decorating" the brand mark.
+            Sits on top of the clean green disc (no underlying $ now). */}
         <div
           aria-hidden
           className="hero-amt pointer-events-none absolute inset-0 flex items-center justify-center"
         >
-          <div
-            className="flex aspect-square items-center justify-center rounded-full bg-paper"
+          <span
+            className="font-display font-semibold italic text-white"
             style={{
-              width: '52%',
-              boxShadow: '0 6px 22px rgba(14,20,32,0.18), 0 0 0 1px rgba(14,20,32,0.06)',
+              fontSize: size * 0.22,
+              letterSpacing: '-0.02em',
+              lineHeight: 1,
+              textShadow:
+                '0 2px 6px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.18)',
             }}
           >
-            <span
-              className="font-display font-semibold italic text-ink"
-              style={{
-                fontSize: size * 0.19,
-                letterSpacing: '-0.02em',
-                lineHeight: 1,
-              }}
-            >
-              $20
-            </span>
-          </div>
+            $20
+          </span>
         </div>
       </div>
 
